@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
 using System.Windows;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace Tradewatch
 {
     public partial class MainWindow : Window
     {
+        private ObservableCollection<Exchange> Exchanges { get; set; }
         private readonly DispatcherTimer _timer;
 
         public MainWindow()
@@ -21,8 +24,8 @@ namespace Tradewatch
             _timer.Start();
 
             // Set up exchanges
-            var exchanges = GetExchanges();
-            ExchangeGrid.ItemsSource = exchanges;
+            Exchanges = new ObservableCollection<Exchange>(GetExchanges());
+            ExchangeGrid.ItemsSource = Exchanges;
 
             // Initial time update
             UpdateTime();
@@ -33,27 +36,21 @@ namespace Tradewatch
             LocalTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
 
             var nowUtc = DateTime.UtcNow;
-            var updatedList = GetExchanges().Select(e =>
+
+
+            foreach (var e in Exchanges)
             {
                 var tz = TimeZoneInfo.FindSystemTimeZoneById(e.TimeZone);
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+                bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay <= e.Close
+                            && localTime.DayOfWeek != DayOfWeek.Saturday
+                            && localTime.DayOfWeek != DayOfWeek.Sunday;
 
-                bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay <= e.Close;
-                return new Exchange
-                {
-                    Name = e.Name,
-                    TimeZone = e.TimeZone,
-                    Open = e.Open,
-                    Close = e.Close,
-                    LocalTime = localTime.ToString("HH:mm"),
-                    OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}",
-                    Status = isOpen ? "🟢 Open" : "🔴 Closed"
-                };
-            }).ToList();
-
-            ExchangeGrid.ItemsSource = updatedList;
+                e.LocalTime = localTime.ToString("HH:mm");
+                e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
+                e.Status = isOpen ? "🟢 Open" : "🔴 Closed";
+            }
         }
-
         private List<Exchange> GetExchanges()
         {
             return new List<Exchange>
@@ -68,16 +65,58 @@ namespace Tradewatch
         }
     }
 
-    public class Exchange
+    public class Exchange : INotifyPropertyChanged
     {
         public string Name { get; set; }
         public string TimeZone { get; set; }
         public TimeSpan Open { get; set; }
         public TimeSpan Close { get; set; }
 
-        // Display properties
-        public string LocalTime { get; set; }
-        public string OpenCloseHours { get; set; }
-        public string Status { get; set; }
+    // Display properties
+        private string _localTime;
+        public string LocalTime
+        {
+            get => _localTime;
+            set
+            {
+                if (_localTime != value)
+                {
+                    _localTime = value;
+                    OnPropertyChanged(nameof(LocalTime));
+                }
+
+            }
+        }
+        private string _openCloseHours;
+        public string OpenCloseHours
+        {
+            get => _openCloseHours;
+            set
+            {
+                if (_openCloseHours != value)
+                {
+                    _openCloseHours = value;
+                    OnPropertyChanged(nameof(OpenCloseHours));
+                }
+            }
+        }
+        private string _status;
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(Status));
+                }
+            }
+        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
