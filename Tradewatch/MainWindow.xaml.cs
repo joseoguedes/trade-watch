@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace Tradewatch
 {
@@ -48,7 +49,7 @@ namespace Tradewatch
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
-                e.Status = isOpen ? "🟢 Open" : "🔴 Closed";
+                e.Status = isOpen ? "Open" : "Closed";
             }
         }
         private List<Exchange> GetExchanges()
@@ -72,7 +73,7 @@ namespace Tradewatch
         public TimeSpan Open { get; set; }
         public TimeSpan Close { get; set; }
 
-    // Display properties
+        // Display properties
         private string _localTime;
         public string LocalTime
         {
@@ -113,6 +114,8 @@ namespace Tradewatch
                 }
             }
         }
+        public string StatusText => Status == "Open" ? "Open" : "Closed";
+        public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Brushes.Red;
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
