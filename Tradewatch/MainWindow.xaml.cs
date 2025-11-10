@@ -6,6 +6,8 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace Tradewatch
 {
@@ -63,6 +65,61 @@ namespace Tradewatch
                 new Exchange { Name = "Euronext Paris", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Australian Securities Exchange (ASX)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) }
             };
+        }
+        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(
+                "Tradewatch\n\nA simple app to track global market open hours.\nCreated by Jose.",
+                "About Tradewatch",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
+        }
+        // Theme toggles
+        private void DarkTheme_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyTheme(isDark: true);
+        }
+        private void LightTheme_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyTheme(isDark: false);
+        }
+
+        // Core theme switcher
+        private void ApplyTheme(bool isDark)
+        {
+            if (isDark)
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17)); // #111
+                ExchangeGrid.Background = Brushes.Black;
+                ExchangeGrid.Foreground = Brushes.White;
+                ExchangeGrid.AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(25, 25, 25));
+                ExchangeGrid.RowBackground = Brushes.Black;
+
+                var headerStyle = new Style(typeof(DataGridColumnHeader));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(Color.FromRgb(11, 61, 58))));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, Brushes.White));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
+                ExchangeGrid.ColumnHeaderStyle = headerStyle;
+            }
+            else
+            {
+                this.Background = Brushes.WhiteSmoke;
+                ExchangeGrid.Background = Brushes.White;
+                ExchangeGrid.Foreground = Brushes.Black;
+                ExchangeGrid.AlternatingRowBackground = Brushes.WhiteSmoke;
+                ExchangeGrid.RowBackground = Brushes.White;
+
+                var headerStyle = new Style(typeof(DataGridColumnHeader));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(Color.FromRgb(200, 230, 220))));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, Brushes.Black));
+                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
+                ExchangeGrid.ColumnHeaderStyle = headerStyle;
+            }
         }
     }
 

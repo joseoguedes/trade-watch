@@ -5,12 +5,36 @@
         Background="#111111">
     <Grid Background="Black">
         <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>   <!-- Top bar -->
-        <RowDefinition Height="*"/>      <!-- Main content -->
+            <RowDefinition Height="Auto"/>   <!-- Menu bar -->
+            <RowDefinition Height="Auto"/>   <!-- Top bar -->
+            <RowDefinition Height="*"/>      <!-- Main content -->
         </Grid.RowDefinitions>
 
+         <!-- 🧭 Menu bar -->
+         <!-- dark viridian green -->
+        <Menu Grid.Row="0"
+              Background="#0B3D3A" 
+              Foreground="White"
+              FontSize="14">
+            <MenuItem Header="_File">
+                    <MenuItem Header="E_xit" Click="ExitMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="AboutMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Settings">
+                <MenuItem Header="_Theme">
+                    <MenuItem Header="Dark" Click="DarkTheme_Click"/>
+                    <MenuItem Header="Light" Click="LightTheme_Click"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
     <!-- Top section: Local time -->
-    <StackPanel Orientation="Horizontal" Margin="15,10,0,10" VerticalAlignment="Top">
+    <StackPanel Grid.Row="1" 
+                Orientation="Horizontal" 
+                Margin="15,10,0,10" 
+                VerticalAlignment="Top">
         <TextBlock Text="Local time: " 
                    Foreground="White"
                    FontSize="18"
@@ -25,7 +49,7 @@
 
     <!-- Main data grid -->
         <DataGrid x:Name="ExchangeGrid"
-                  Grid.Row="1"
+                  Grid.Row="2"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   HeadersVisibility="Column"
