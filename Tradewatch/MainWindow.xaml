@@ -105,6 +105,13 @@
                   Margin="10"
                   AlternatingRowBackground="#111"
                   RowBackground="#000">
+
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.CellStyle>
     
     <!-- Style for header background and text -->
             <DataGrid.ColumnHeaderStyle>
@@ -115,23 +122,41 @@
                     <Setter Property="FontSize" Value="14"/>
                     <Setter Property="BorderBrush" Value="Black"/>
                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Exchange" Binding="{Binding Name}" Width="*" />
-                <DataGridTextColumn Header="Local Time" Binding="{Binding LocalTime}" Width="100"/>
-                <DataGridTextColumn Header="Open Hours" Binding="{Binding OpenCloseHours}" Width="120"/>
                 <DataGridTemplateColumn Header="Status" Width="130">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <Ellipse Width="12" Height="12" Margin="0,0,6,0" Fill="{Binding StatusColor}" />
-                                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Foreground="White" FontWeight="Bold" TextAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Local Time" Binding="{Binding LocalTime}" Width="100">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Open Hours" Binding="{Binding OpenCloseHours}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
