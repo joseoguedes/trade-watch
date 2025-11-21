@@ -34,6 +34,10 @@ namespace Tradewatch
             UpdateTime();
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            ApplyTheme(isDark: true); // Default to dark theme
+        }
         private void UpdateTime()
         {
             LocalTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
