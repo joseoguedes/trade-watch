@@ -8,6 +8,8 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.IO;
+using System.Text.Json;
 
 namespace Tradewatch
 {
@@ -15,6 +17,7 @@ namespace Tradewatch
     {
         private ObservableCollection<Exchange> Exchanges { get; set; }
         private readonly DispatcherTimer _timer;
+        private readonly string SettingsPath = "settings.json";
 
         public MainWindow()
         {
@@ -28,7 +31,12 @@ namespace Tradewatch
 
             // Set up exchanges
             Exchanges = new ObservableCollection<Exchange>(GetExchanges());
-            ExchangeGrid.ItemsSource = Exchanges;
+            var settings = LoadSettings();
+            foreach (var ex in Exchanges)
+            {
+                ex.IsEnabled = settings.EnabledExchanges.Contains(ex.Name);
+            }
+            ExchangeGrid.ItemsSource = Exchanges.Where(x => x.IsEnabled).ToList();
 
             // Initial time update
             UpdateTime();
@@ -83,6 +91,23 @@ namespace Tradewatch
                 MessageBoxImage.Information
             );
         }
+
+        private void ManageExchanges_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new ExchangeSelectorWindow(Exchanges.ToList());
+            win.Owner = this;
+
+            bool? result = win.ShowDialog();
+            if (result == true)
+            {
+                var settings = LoadSettings();
+                foreach (var ex in Exchanges)
+                {
+                    ex.IsEnabled = settings.EnabledExchanges.Contains(ex.Name);
+                }
+                ExchangeGrid.ItemsSource = Exchanges.Where(x => x.IsEnabled).ToList();
+            }
+        }
         // Theme toggles
         private void DarkTheme_Click(object sender, RoutedEventArgs e)
         {
@@ -125,62 +150,23 @@ namespace Tradewatch
                 ExchangeGrid.ColumnHeaderStyle = headerStyle;
             }
         }
-    }
-
-    public class Exchange : INotifyPropertyChanged
-    {
-        public string Name { get; set; }
-        public string TimeZone { get; set; }
-        public TimeSpan Open { get; set; }
-        public TimeSpan Close { get; set; }
-
-        // Display properties
-        private string _localTime;
-        public string LocalTime
+        private AppSettings LoadSettings()
         {
-            get => _localTime;
-            set
+            if (!File.Exists(SettingsPath))
             {
-                if (_localTime != value)
+                return new AppSettings
                 {
-                    _localTime = value;
-                    OnPropertyChanged(nameof(LocalTime));
-                }
+                    EnabledExchanges = Exchanges.Select(e => e.Name).ToList()
+                };
+            }
+            string json = File.ReadAllText(SettingsPath);
+            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+        }
 
-            }
-        }
-        private string _openCloseHours;
-        public string OpenCloseHours
+        public void SaveSettings(AppSettings settings)
         {
-            get => _openCloseHours;
-            set
-            {
-                if (_openCloseHours != value)
-                {
-                    _openCloseHours = value;
-                    OnPropertyChanged(nameof(OpenCloseHours));
-                }
-            }
-        }
-        private string _status;
-        public string Status
-        {
-            get => _status;
-            set
-            {
-                if (_status != value)
-                {
-                    _status = value;
-                    OnPropertyChanged(nameof(Status));
-                }
-            }
-        }
-        public string StatusText => Status == "Open" ? "Open" : "Closed";
-        public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Brushes.Red;
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(SettingsPath, json);
         }
     }
-}
+}  

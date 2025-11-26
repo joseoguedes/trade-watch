@@ -1,0 +1,10 @@
+{
+  "EnabledExchanges": [
+    "New York Stock Exchange (NYSE)",
+    "London Stock Exchange (LSE)",
+    "Tokyo Stock Exchange (TSE)",
+    "Hong Kong Stock Exchange (HKEX)",
+    "Euronext Paris",
+    "Australian Securities Exchange (ASX)"
+  ]
+}

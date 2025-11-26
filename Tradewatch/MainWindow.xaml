@@ -162,6 +162,7 @@
                     <MenuItem Header="Dark" Click="DarkTheme_Click"/>
                     <MenuItem Header="Light" Click="LightTheme_Click"/>
                 </MenuItem>
+                <MenuItem Header="Exchanges..." Click="ManageExchanges_Click" />
             </MenuItem>
         </Menu>
 
