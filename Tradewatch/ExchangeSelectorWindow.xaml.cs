@@ -55,6 +55,28 @@ namespace Tradewatch
             Close();
         }
 
+        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in ExchangeList.Children)
+            {
+                if (child is CheckBox cb)
+                {
+                    cb.IsChecked = true;
+                }
+            }
+        }
+        
+        private void ClearAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in ExchangeList.Children)
+            {
+                if (child is CheckBox cb)
+                {
+                    cb.IsChecked = false;
+                }
+            }
+        }
+        
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
