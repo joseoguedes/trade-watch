@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Tradewatch
 {
@@ -9,12 +10,15 @@ namespace Tradewatch
     {
         private List<Exchange> _exchanges;
 
+        private bool _searchPlaceholderActive = true;
+
         public ExchangeSelectorWindow(List<Exchange> exchanges)
         {
             InitializeComponent();
             _exchanges = exchanges;
 
             LoadCheckboxes();
+            ShowPlaceholder();
         }
 
         private void LoadCheckboxes()
@@ -31,6 +35,47 @@ namespace Tradewatch
 
                 checkbox.Tag = exchange; // store reference
                 ExchangeList.Children.Add(checkbox);
+            }
+        }
+
+        private void ShowPlaceholder()
+        {
+            SearchBox.Text = (string)SearchBox.Tag;
+            SearchBox.Foreground = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
+            _searchPlaceholderActive = true;
+        }
+
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (_searchPlaceholderActive)
+            {
+                SearchBox.Text = "";
+                SearchBox.Foreground = Brushes.White;
+                _searchPlaceholderActive = false;
+            }
+        }
+
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SearchBox.Text))
+                ShowPlaceholder();
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_searchPlaceholderActive) return;
+
+            var query = SearchBox.Text.Trim();
+
+            foreach (var child in ExchangeList.Children)
+            {
+                if (child is CheckBox cb)
+                {
+                    var name = cb.Content?.ToString() ?? "";
+                    cb.Visibility = name.Contains(query, System.StringComparison.OrdinalIgnoreCase)
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                }
             }
         }
 
