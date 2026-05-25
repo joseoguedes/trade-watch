@@ -151,6 +151,7 @@ namespace Tradewatch
         // Core theme switcher
         private void ApplyTheme(bool isDark)
         {
+            Brush bg, fg, separator;
             if (isDark)
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17)); // #111
@@ -158,12 +159,9 @@ namespace Tradewatch
                 ExchangeGrid.Foreground = Brushes.White;
                 ExchangeGrid.AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(25, 25, 25));
                 ExchangeGrid.RowBackground = Brushes.Black;
-
-                var headerStyle = new Style(typeof(DataGridColumnHeader));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(Color.FromRgb(11, 61, 58))));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, Brushes.White));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
-                ExchangeGrid.ColumnHeaderStyle = headerStyle;
+                bg = new SolidColorBrush(Color.FromRgb(11, 61, 58));
+                fg = Brushes.White;
+                separator = new SolidColorBrush(Color.FromRgb(30, 138, 128)); // brighter teal
             }
             else
             {
@@ -172,13 +170,32 @@ namespace Tradewatch
                 ExchangeGrid.Foreground = Brushes.Black;
                 ExchangeGrid.AlternatingRowBackground = Brushes.WhiteSmoke;
                 ExchangeGrid.RowBackground = Brushes.White;
-
-                var headerStyle = new Style(typeof(DataGridColumnHeader));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(Color.FromRgb(200, 230, 220))));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, Brushes.Black));
-                headerStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
-                ExchangeGrid.ColumnHeaderStyle = headerStyle;
+                bg = new SolidColorBrush(Color.FromRgb(200, 230, 220));
+                fg = Brushes.Black;
+                separator = new SolidColorBrush(Color.FromRgb(122, 181, 168)); // medium mint
             }
+
+            ExchangeGrid.VerticalGridLinesBrush = separator;
+            ExchangeGrid.HorizontalGridLinesBrush = separator;
+
+            var headerStyle = new Style(typeof(DataGridColumnHeader));
+            headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, bg));
+            headerStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, fg));
+            headerStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
+            headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderBrushProperty, separator));
+            headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderThicknessProperty, new Thickness(0, 0, 1, 0)));
+            ExchangeGrid.ColumnHeaderStyle = headerStyle;
+
+            var centeredHeaderStyle = new Style(typeof(DataGridColumnHeader));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, bg));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.ForegroundProperty, fg));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.FontWeightProperty, FontWeights.Bold));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.HorizontalContentAlignmentProperty, HorizontalAlignment.Center));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderBrushProperty, separator));
+            centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderThicknessProperty, new Thickness(0, 0, 1, 0)));
+
+            foreach (var col in ExchangeGrid.Columns.Skip(1))
+                col.HeaderStyle = centeredHeaderStyle;
         }
         private AppSettings LoadSettings()
         {

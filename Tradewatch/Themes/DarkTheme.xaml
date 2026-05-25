@@ -7,5 +7,6 @@
     <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#15ffb3" />
     <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#00cc88" />
     <SolidColorBrush x:Key="ScrollBarButtonBrush" Color="#111111" />
+    <SolidColorBrush x:Key="ScrollBarArrowBrush" Color="#BBBBBB" />
 
 </ResourceDictionary>
