@@ -167,25 +167,33 @@ namespace Tradewatch
             Brush bg, fg, separator;
             if (isDark)
             {
-                this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17)); // #111
+                this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17));
+                RootGrid.Background = Brushes.Black;
+                MenuBar.Background = new SolidColorBrush(Color.FromRgb(0x0E, 0x4E, 0x4A));
+                LocalTimeLabel.Foreground = Brushes.White;
+                LocalTimeText.Foreground = Brushes.White;
                 ExchangeGrid.Background = Brushes.Black;
                 ExchangeGrid.Foreground = Brushes.White;
                 ExchangeGrid.AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(25, 25, 25));
                 ExchangeGrid.RowBackground = Brushes.Black;
                 bg = new SolidColorBrush(Color.FromRgb(11, 61, 58));
                 fg = Brushes.White;
-                separator = new SolidColorBrush(Color.FromRgb(30, 138, 128)); // brighter teal
+                separator = new SolidColorBrush(Color.FromRgb(30, 138, 128));
             }
             else
             {
                 this.Background = Brushes.WhiteSmoke;
+                RootGrid.Background = Brushes.WhiteSmoke;
+                MenuBar.Background = new SolidColorBrush(Color.FromRgb(0x5B, 0x8D, 0xB8));
+                LocalTimeLabel.Foreground = Brushes.Black;
+                LocalTimeText.Foreground = Brushes.Black;
                 ExchangeGrid.Background = Brushes.White;
                 ExchangeGrid.Foreground = Brushes.Black;
                 ExchangeGrid.AlternatingRowBackground = Brushes.WhiteSmoke;
                 ExchangeGrid.RowBackground = Brushes.White;
-                bg = new SolidColorBrush(Color.FromRgb(200, 230, 220));
+                bg = new SolidColorBrush(Color.FromRgb(0xA8, 0xC4, 0xDC));
                 fg = Brushes.Black;
-                separator = new SolidColorBrush(Color.FromRgb(122, 181, 168)); // medium mint
+                separator = new SolidColorBrush(Color.FromRgb(0x8B, 0xAE, 0xC8));
             }
 
             ExchangeGrid.VerticalGridLinesBrush = separator;

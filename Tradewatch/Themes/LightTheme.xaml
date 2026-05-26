@@ -1,7 +1,17 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- LIGHT THEME SCROLLBAR BRUSHES (we'll tweak these later) -->
+    <!-- MENU HOVER BRUSHES -->
+    <SolidColorBrush x:Key="MenuItemHoverBrush" Color="#4A7CAA" />
+    <SolidColorBrush x:Key="MenuItemOpenBrush" Color="#3D6E9E" />
+
+    <!-- SUBMENU BRUSHES -->
+    <SolidColorBrush x:Key="SubMenuBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SubMenuBorderBrush" Color="#5B8DB8" />
+    <SolidColorBrush x:Key="SubMenuFgBrush" Color="#1A1A1A" />
+    <SolidColorBrush x:Key="SubMenuHoverBgBrush" Color="#D0E4F4" />
+
+    <!-- LIGHT THEME SCROLLBAR BRUSHES -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#E2E2E2" />
     <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#A0A0A0" />
     <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#808080" />

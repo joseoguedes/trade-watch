@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Tradewatch" Height="500" Width="700" Background="#111111" Loaded="Window_Loaded">
     
-    <Grid Background="Black">
+    <Grid x:Name="RootGrid" Background="Black">
         
         <Grid.Resources>
             <Style x:Key="TopLevelMenuItemStyle" TargetType="{x:Type MenuItem}">
@@ -24,22 +24,22 @@
                                     </Border>
                                     
                                     <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" StaysOpen="False" IsOpen="{TemplateBinding IsSubmenuOpen}">
-                                        <Border Background="#0A2F2C"
-                                                BorderBrush="#156E68"
+                                        <Border Background="{DynamicResource SubMenuBgBrush}"
+                                                BorderBrush="{DynamicResource SubMenuBorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="2"
                                                 Padding="2">
-                                            
+
                                             <StackPanel IsItemsHost="True"/>
                                         </Border>
                                     </Popup>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter TargetName="TopBorder" Property="Background" Value="#0E3F3B"/>
+                                        <Setter TargetName="TopBorder" Property="Background" Value="{DynamicResource MenuItemHoverBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsSubmenuOpen" Value="True">
-                                        <Setter TargetName="TopBorder" Property="Background" Value="#156E68"/>
+                                        <Setter TargetName="TopBorder" Property="Background" Value="{DynamicResource MenuItemOpenBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -50,9 +50,9 @@
                 <Style x:Key="SubMenuItemStyle" TargetType="{x:Type MenuItem}">
                     <Setter Property="OverridesDefaultStyle" Value="True"/>
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                    <Setter Property="Background" Value="#0A2F2C"/>
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="BorderBrush" Value="#0E4E4A"/>
+                    <Setter Property="Background" Value="{DynamicResource SubMenuBgBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource SubMenuFgBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource SubMenuBorderBrush}"/>
                     <Setter Property="BorderThickness" Value="1"/>
                     <Setter Property="Padding" Value="6,4"/>
                     <Setter Property="Margin" Value="1"/>
@@ -100,8 +100,8 @@
                                            StaysOpen="False"
                                            IsOpen="{TemplateBinding IsSubmenuOpen}">
                                         
-                                        <Border Background="#0A2F2C"
-                                                BorderBrush="#156E68"
+                                        <Border Background="{DynamicResource SubMenuBgBrush}"
+                                                BorderBrush="{DynamicResource SubMenuBorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="2"
                                                 Padding="2">
@@ -116,12 +116,12 @@
                                         <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
                                     </Trigger>
                                     <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter TargetName="ItemBorder" Property="Background" Value="#114843"/>
-                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#156E68"/>
+                                        <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SubMenuHoverBgBrush}"/>
+                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource SubMenuBorderBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsSubmenuOpen" Value="True">
-                                        <Setter TargetName="ItemBorder" Property="Background" Value="#114843"/>
-                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#156E68"/>
+                                        <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SubMenuHoverBgBrush}"/>
+                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource SubMenuBorderBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -141,8 +141,9 @@
 
          <!-- 🧭 Menu bar -->
          <!-- dark viridian green -->
-        <Menu Grid.Row="0"
-              Background="#0E4E4A" 
+        <Menu x:Name="MenuBar"
+              Grid.Row="0"
+              Background="#0E4E4A"
               Foreground="White"
               FontSize="14"
               FontWeight="SemiBold"
@@ -170,7 +171,8 @@
     <StackPanel Grid.Row="1" 
                 Orientation="Horizontal" 
                 Margin="15,10,0,10"> 
-        <TextBlock Text="Local time: " 
+        <TextBlock x:Name="LocalTimeLabel"
+                   Text="Local time: "
                    Foreground="White"
                    FontSize="18"/>
         <TextBlock x:Name="LocalTimeText"
