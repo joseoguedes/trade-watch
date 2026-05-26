@@ -58,7 +58,7 @@ namespace Tradewatch
             {
                 var tz = TimeZoneInfo.FindSystemTimeZoneById(e.TimeZone);
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
-                bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay <= e.Close
+                bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
                             && localTime.DayOfWeek != DayOfWeek.Saturday
                             && localTime.DayOfWeek != DayOfWeek.Sunday;
 
