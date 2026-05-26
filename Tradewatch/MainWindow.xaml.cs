@@ -17,7 +17,7 @@ namespace Tradewatch
     {
         private ObservableCollection<Exchange> Exchanges { get; set; }
         private readonly DispatcherTimer _timer;
-        private readonly string SettingsPath = "settings.json";
+        private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
 
         public MainWindow()
         {
