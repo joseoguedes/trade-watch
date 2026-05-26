@@ -199,15 +199,25 @@ namespace Tradewatch
         }
         private AppSettings LoadSettings()
         {
-            if (!File.Exists(SettingsPath))
+            try
+            {
+                if (!File.Exists(SettingsPath))
+                {
+                    return new AppSettings
+                    {
+                        EnabledExchanges = Exchanges.Select(e => e.Name).ToList()
+                    };
+                }
+                string json = File.ReadAllText(SettingsPath);
+                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+            }
+            catch
             {
                 return new AppSettings
                 {
                     EnabledExchanges = Exchanges.Select(e => e.Name).ToList()
                 };
             }
-            string json = File.ReadAllText(SettingsPath);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
         }
 
         public void SaveSettings(AppSettings settings)
