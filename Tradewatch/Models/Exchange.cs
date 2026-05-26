@@ -52,6 +52,8 @@ namespace Tradewatch
                 {
                     _status = value;
                     OnPropertyChanged(nameof(Status));
+                    OnPropertyChanged(nameof(StatusText));
+                    OnPropertyChanged(nameof(StatusColor));
                 }
             }
         }
