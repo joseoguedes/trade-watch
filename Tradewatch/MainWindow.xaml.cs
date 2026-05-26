@@ -44,7 +44,8 @@ namespace Tradewatch
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ApplyTheme(isDark: true); // Default to dark theme
+            var settings = LoadSettings();
+            ApplyTheme(isDark: settings.SelectedTheme != "Light");
         }
         private void UpdateTime()
         {
@@ -196,6 +197,10 @@ namespace Tradewatch
 
             foreach (var col in ExchangeGrid.Columns.Skip(1))
                 col.HeaderStyle = centeredHeaderStyle;
+
+            var settings = LoadSettings();
+            settings.SelectedTheme = isDark ? "Dark" : "Light";
+            SaveSettings(settings);
         }
         private AppSettings LoadSettings()
         {

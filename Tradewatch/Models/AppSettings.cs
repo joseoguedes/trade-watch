@@ -5,5 +5,6 @@ namespace Tradewatch
     public class AppSettings
     {
         public List<string> EnabledExchanges { get; set; } = new List<string>();
+        public string SelectedTheme { get; set; } = "Dark";
     }
 }
