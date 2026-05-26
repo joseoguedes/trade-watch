@@ -10,8 +10,8 @@ namespace Tradewatch
         public string TimeZone { get; set; }
         public TimeSpan Open { get; set; }
         public TimeSpan Close { get; set; }
-
-        // This is the new property we added
+        public TimeSpan? LunchStart { get; set; }
+        public TimeSpan? LunchEnd { get; set; }
         public bool IsEnabled { get; set; } = true;
 
         private string _localTime;

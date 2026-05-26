@@ -60,9 +60,13 @@ namespace Tradewatch
             {
                 var tz = TimeZoneInfo.FindSystemTimeZoneById(e.TimeZone);
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+                bool inLunch = e.LunchStart.HasValue && e.LunchEnd.HasValue
+                            && localTime.TimeOfDay >= e.LunchStart.Value
+                            && localTime.TimeOfDay < e.LunchEnd.Value;
                 bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
                             && localTime.DayOfWeek != DayOfWeek.Saturday
-                            && localTime.DayOfWeek != DayOfWeek.Sunday;
+                            && localTime.DayOfWeek != DayOfWeek.Sunday
+                            && !inLunch;
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
@@ -93,8 +97,8 @@ namespace Tradewatch
                 new Exchange { Name = "Oslo Stock Exchange (OSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,25,0) },
                 new Exchange { Name = "Stockholm Stock Exchange (OMX)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Helsinki Stock Exchange (NASDAQ OMX)", TimeZone = "FLE Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,30,0) },
-                new Exchange { Name = "Shanghai Stock Exchange (SSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0) },
-                new Exchange { Name = "Shenzhen Stock Exchange (SZSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0) },
+                new Exchange { Name = "Shanghai Stock Exchange (SSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
+                new Exchange { Name = "Shenzhen Stock Exchange (SZSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
                 new Exchange { Name = "Singapore Exchange (SGX)", TimeZone = "Singapore Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
                 new Exchange { Name = "Bombay Stock Exchange (BSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
                 new Exchange { Name = "National Stock Exchange of India (NSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
