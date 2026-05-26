@@ -18,6 +18,8 @@ namespace Tradewatch
         private ObservableCollection<Exchange> Exchanges { get; set; }
         private readonly DispatcherTimer _timer;
         private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private bool _isDark = true;
+        private ExchangeSelectorWindow _selectorWindow;
 
         public MainWindow()
         {
@@ -123,21 +125,22 @@ namespace Tradewatch
             );
         }
 
+        public void RefreshGrid()
+        {
+            ExchangeGrid.ItemsSource = Exchanges.Where(x => x.IsEnabled).ToList();
+        }
+
         private void ManageExchanges_Click(object sender, RoutedEventArgs e)
         {
-            var win = new ExchangeSelectorWindow(Exchanges.ToList());
-            win.Owner = this;
-
-            bool? result = win.ShowDialog();
-            if (result == true)
+            if (_selectorWindow != null && _selectorWindow.IsLoaded)
             {
-                var settings = LoadSettings();
-                foreach (var ex in Exchanges)
-                {
-                    ex.IsEnabled = settings.EnabledExchanges.Contains(ex.Name);
-                }
-                ExchangeGrid.ItemsSource = Exchanges.Where(x => x.IsEnabled).ToList();
+                _selectorWindow.Activate();
+                return;
             }
+
+            _selectorWindow = new ExchangeSelectorWindow(Exchanges.ToList(), _isDark);
+            _selectorWindow.Owner = this;
+            _selectorWindow.Show();
         }
         // Theme toggles
         private void DarkTheme_Click(object sender, RoutedEventArgs e)
@@ -152,6 +155,15 @@ namespace Tradewatch
         // Core theme switcher
         private void ApplyTheme(bool isDark)
         {
+            _isDark = isDark;
+
+            var dicts = Application.Current.Resources.MergedDictionaries;
+            dicts.Clear();
+            dicts.Add(new ResourceDictionary
+            {
+                Source = new Uri($"Themes/{(isDark ? "Dark" : "Light")}Theme.xaml", UriKind.Relative)
+            });
+
             Brush bg, fg, separator;
             if (isDark)
             {

@@ -9,16 +9,46 @@ namespace Tradewatch
     public partial class ExchangeSelectorWindow : Window
     {
         private List<Exchange> _exchanges;
-
+        private bool _isDark;
         private bool _searchPlaceholderActive = true;
 
-        public ExchangeSelectorWindow(List<Exchange> exchanges)
+        public ExchangeSelectorWindow(List<Exchange> exchanges, bool isDark)
         {
             InitializeComponent();
             _exchanges = exchanges;
+            _isDark = isDark;
 
+            ApplyTheme();
             LoadCheckboxes();
             ShowPlaceholder();
+        }
+
+        private void ApplyTheme()
+        {
+            if (_isDark)
+            {
+                this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17));
+                SearchBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                SearchBox.CaretBrush = Brushes.White;
+                SearchBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44));
+                var btnBg = new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x33));
+                AddAllBtn.Background = RemoveAllBtn.Background = CancelBtn.Background = btnBg;
+                AddAllBtn.Foreground = RemoveAllBtn.Foreground = CancelBtn.Foreground = Brushes.White;
+                SaveBtn.Background = new SolidColorBrush(Color.FromRgb(0x0E, 0x4E, 0x4A));
+                SaveBtn.Foreground = Brushes.White;
+            }
+            else
+            {
+                this.Background = Brushes.WhiteSmoke;
+                SearchBox.Background = Brushes.White;
+                SearchBox.CaretBrush = Brushes.Black;
+                SearchBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0xCC, 0xCC, 0xCC));
+                var btnBg = new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
+                AddAllBtn.Background = RemoveAllBtn.Background = CancelBtn.Background = btnBg;
+                AddAllBtn.Foreground = RemoveAllBtn.Foreground = CancelBtn.Foreground = Brushes.Black;
+                SaveBtn.Background = new SolidColorBrush(Color.FromRgb(0xBB, 0xBB, 0xBB));
+                SaveBtn.Foreground = Brushes.Black;
+            }
         }
 
         private void LoadCheckboxes()
@@ -30,7 +60,7 @@ namespace Tradewatch
                     Content = exchange.Name,
                     IsChecked = exchange.IsEnabled,
                     Margin = new Thickness(0, 5, 0, 5),
-                    Foreground = System.Windows.Media.Brushes.White,
+                    Foreground = _isDark ? Brushes.White : Brushes.Black,
                 };
 
                 checkbox.Tag = exchange; // store reference
@@ -50,7 +80,7 @@ namespace Tradewatch
             if (_searchPlaceholderActive)
             {
                 SearchBox.Text = "";
-                SearchBox.Foreground = Brushes.White;
+                SearchBox.Foreground = _isDark ? Brushes.White : Brushes.Black;
                 _searchPlaceholderActive = false;
             }
         }
@@ -92,12 +122,9 @@ namespace Tradewatch
                 }
             }
 
-            // save JSON
             MainWindow main = Owner as MainWindow;
             main.SaveSettings(settings);
-
-            DialogResult = true;
-            Close();
+            main.RefreshGrid();
         }
 
         private void SelectAll_Click(object sender, RoutedEventArgs e)

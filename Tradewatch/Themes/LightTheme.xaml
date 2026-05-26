@@ -3,9 +3,9 @@
 
     <!-- LIGHT THEME SCROLLBAR BRUSHES (we'll tweak these later) -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#E2E2E2" />
-    <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#5ABF73" />
-    <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#46A860" />
-    <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#3A8C52" />
+    <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#A0A0A0" />
+    <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#808080" />
+    <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#686868" />
     <SolidColorBrush x:Key="ScrollBarButtonBrush" Color="#D0D0D0" />
     <SolidColorBrush x:Key="ScrollBarArrowBrush" Color="#555555" />
 

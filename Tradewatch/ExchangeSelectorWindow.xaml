@@ -42,28 +42,32 @@
                     HorizontalAlignment="Right"
                     Margin="0,10,0,0">
             
-            <Button Content="Add all"
+            <Button x:Name="AddAllBtn"
+                    Content="Add all"
                     Width="80"
                     Margin="5"
                     Click="SelectAll_Click"
                     Background="#333"
                     Foreground="White" />
-            
-            <Button Content="Remove all"
+
+            <Button x:Name="RemoveAllBtn"
+                    Content="Remove all"
                     Width="90"
                     Margin="5"
                     Click="ClearAll_Click"
                     Background="#333"
                     Foreground="White" />
-            
-            <Button Content="Cancel"
+
+            <Button x:Name="CancelBtn"
+                    Content="Cancel"
                     Width="80"
                     Margin="5"
                     Click="Cancel_Click"
                     Background="#333"
                     Foreground="White" />
 
-            <Button Content="Save"
+            <Button x:Name="SaveBtn"
+                    Content="Save"
                     Width="80"
                     Margin="5"
                     Click="Save_Click"
