@@ -111,7 +111,7 @@ namespace Tradewatch
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            var settings = new AppSettings();
+            var settings = new AppSettings { SelectedTheme = _isDark ? "Dark" : "Light" };
             foreach (var child in ExchangeList.Children)
             {
                 if (child is CheckBox cb && cb.Tag is Exchange ex)
@@ -122,7 +122,7 @@ namespace Tradewatch
                 }
             }
 
-            MainWindow main = Owner as MainWindow;
+            if (Owner is not MainWindow main) return;
             main.SaveSettings(settings);
             main.RefreshGrid();
         }
