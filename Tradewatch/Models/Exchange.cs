@@ -13,6 +13,7 @@ namespace Tradewatch
         public TimeSpan Close { get; set; }
         public TimeSpan? LunchStart { get; set; }
         public TimeSpan? LunchEnd { get; set; }
+        public TimeSpan? FridayLunchEnd { get; set; }
         public bool IsEnabled { get; set; } = true;
         public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 
