@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Media;
 
@@ -13,6 +14,7 @@ namespace Tradewatch
         public TimeSpan? LunchStart { get; set; }
         public TimeSpan? LunchEnd { get; set; }
         public bool IsEnabled { get; set; } = true;
+        public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 
         private string _localTime;
         public string LocalTime

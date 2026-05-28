@@ -64,8 +64,7 @@ namespace Tradewatch
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < e.LunchEnd.Value;
                 bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
-                            && localTime.DayOfWeek != DayOfWeek.Saturday
-                            && localTime.DayOfWeek != DayOfWeek.Sunday
+                            && !e.WeekendDays.Contains(localTime.DayOfWeek)
                             && !inLunch;
 
                 e.LocalTime = localTime.ToString("HH:mm");
@@ -89,9 +88,9 @@ namespace Tradewatch
                 new Exchange { Name = "SIX Swiss Exchange (Zurich)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Madrid Stock Exchange (Bolsa de Madrid)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Borsa Italiana (Milan)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
-                new Exchange { Name = "Euronext Amsterdam", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,40,0) },
+                new Exchange { Name = "Euronext Amsterdam", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Euronext Dublin (ISEQ)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
-                new Exchange { Name = "Euronext Brussels", TimeZone = "Romance Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
+                new Exchange { Name = "Euronext Brussels", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Vienna Stock Exchange (WBAG)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
                 new Exchange { Name = "Athens Stock Exchange (ATHEX)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,20,0) },
                 new Exchange { Name = "Oslo Stock Exchange (OSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,25,0) },
@@ -107,11 +106,11 @@ namespace Tradewatch
                 new Exchange { Name = "Indonesia Stock Exchange (IDX)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,30,0) },
                 new Exchange { Name = "Australian Securities Exchange (ASX 24 Futures)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(9,50,0), Close = new TimeSpan(16,30,0) },
                 new Exchange { Name = "New Zealand Exchange (NZX)", TimeZone = "New Zealand Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,45,0) },
-                new Exchange { Name = "São Paulo Stock Exchange (B3)", TimeZone = "E. South America Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,30,0) },
+                new Exchange { Name = "São Paulo Stock Exchange (B3)", TimeZone = "E. South America Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,0,0) },
                 new Exchange { Name = "Buenos Aires Stock Exchange (BCBA)", TimeZone = "Argentina Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(17,0,0) },
                 new Exchange { Name = "Johannesburg Stock Exchange (JSE)", TimeZone = "South Africa Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
-                new Exchange { Name = "Saudi Stock Exchange (Tadawul)", TimeZone = "Arab Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(15,0,0) },
-                new Exchange { Name = "Tel Aviv Stock Exchange (TASE)", TimeZone = "Israel Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0) },
+                new Exchange { Name = "Saudi Stock Exchange (Tadawul)", TimeZone = "Arab Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(15,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+                new Exchange { Name = "Tel Aviv Stock Exchange (TASE)", TimeZone = "Israel Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
                 new Exchange { Name = "Euronext Lisbon (PSI)", TimeZone = "GMT Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) }
             };
         }
