@@ -64,6 +64,20 @@ namespace Tradewatch
         public string StatusText => Status == "Open" ? "Open" : "Closed";
         public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Brushes.Red;
 
+        private string _countdown;
+        public string Countdown
+        {
+            get => _countdown;
+            set
+            {
+                if (_countdown != value)
+                {
+                    _countdown = value;
+                    OnPropertyChanged(nameof(Countdown));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {

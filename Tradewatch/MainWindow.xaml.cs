@@ -73,7 +73,52 @@ namespace Tradewatch
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
                 e.Status = isOpen ? "Open" : "Closed";
+                e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd);
             }
+        }
+
+        private string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd)
+        {
+            if (isOpen)
+            {
+                var remaining = e.Close - localTime.TimeOfDay;
+                return "Closes in " + FormatCountdown(remaining);
+            }
+
+            if (inLunch && effectiveLunchEnd.HasValue)
+            {
+                var remaining = effectiveLunchEnd.Value - localTime.TimeOfDay;
+                return "Opens in " + FormatCountdown(remaining);
+            }
+
+            var nextOpen = GetNextOpen(e, localTime);
+            return "Opens in " + FormatCountdown(nextOpen - localTime);
+        }
+
+        private DateTime GetNextOpen(Exchange e, DateTime localTime)
+        {
+            var today = localTime.Date;
+
+            if (!e.WeekendDays.Contains(today.DayOfWeek) && localTime.TimeOfDay < e.Open)
+                return today + e.Open;
+
+            for (int i = 1; i <= 7; i++)
+            {
+                var next = today.AddDays(i);
+                if (!e.WeekendDays.Contains(next.DayOfWeek))
+                    return next + e.Open;
+            }
+
+            return localTime;
+        }
+
+        private static string FormatCountdown(TimeSpan span)
+        {
+            if (span.TotalHours >= 1)
+                return $"{(int)span.TotalHours}h {span.Minutes:D2}m";
+            if (span.TotalMinutes >= 1)
+                return $"{span.Minutes}m {span.Seconds:D2}s";
+            return $"{span.Seconds}s";
         }
         private List<Exchange> GetExchanges()
         {
