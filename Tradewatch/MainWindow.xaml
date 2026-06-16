@@ -164,6 +164,7 @@
                     <MenuItem Header="Light" Click="LightTheme_Click"/>
                 </MenuItem>
                 <MenuItem Header="Exchange Pool" Click="ManageExchanges_Click" />
+                <MenuItem x:Name="AlwaysOnTopMenuItem" Header="Always on Top" IsCheckable="True" Click="AlwaysOnTop_Click" />
             </MenuItem>
         </Menu>
 

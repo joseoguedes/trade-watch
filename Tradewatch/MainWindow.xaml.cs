@@ -61,6 +61,8 @@ namespace Tradewatch
         {
             var settings = LoadSettings();
             ApplyTheme(isDark: settings.SelectedTheme != "Light");
+            Topmost = settings.AlwaysOnTop;
+            AlwaysOnTopMenuItem.IsChecked = settings.AlwaysOnTop;
         }
         private void UpdateTime()
         {
@@ -303,6 +305,14 @@ namespace Tradewatch
             _selectorWindow.Show();
         }
         // Theme toggles
+        private void AlwaysOnTop_Click(object sender, RoutedEventArgs e)
+        {
+            Topmost = AlwaysOnTopMenuItem.IsChecked;
+            var settings = LoadSettings();
+            settings.AlwaysOnTop = Topmost;
+            SaveSettings(settings);
+        }
+
         private void DarkTheme_Click(object sender, RoutedEventArgs e)
         {
             ApplyTheme(isDark: true);
