@@ -10,16 +10,24 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.IO;
 using System.Text.Json;
+using System.Runtime.InteropServices;
+using WinForms = System.Windows.Forms;
 
 namespace Tradewatch
 {
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll")] private static extern bool DestroyIcon(IntPtr handle);
+
         private ObservableCollection<Exchange> Exchanges { get; set; }
         private readonly DispatcherTimer _timer;
         private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
         private bool _isDark = true;
         private ExchangeSelectorWindow _selectorWindow;
+        private WinForms.NotifyIcon _trayIcon;
+        private bool _isExiting;
+        private System.Drawing.Icon _iconOpen;
+        private System.Drawing.Icon _iconClosed;
 
         public MainWindow()
         {
@@ -39,6 +47,10 @@ namespace Tradewatch
                 ex.IsEnabled = settings.EnabledExchanges.Contains(ex.Name);
             }
             ExchangeGrid.ItemsSource = Exchanges.Where(x => x.IsEnabled).ToList();
+
+            _iconOpen = CreateCircleIcon(System.Drawing.Color.LimeGreen);
+            _iconClosed = CreateCircleIcon(System.Drawing.Color.Gray);
+            InitializeTrayIcon();
 
             // Initial time update
             UpdateTime();
@@ -75,6 +87,9 @@ namespace Tradewatch
                 e.Status = isOpen ? "Open" : "Closed";
                 e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd);
             }
+
+            bool anyOpen = Exchanges.Any(ex => ex.IsEnabled && ex.Status == "Open");
+            UpdateTrayIcon(anyOpen);
         }
 
         private string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd)
@@ -164,7 +179,72 @@ namespace Tradewatch
         }
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            ExitApp();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (!_isExiting)
+            {
+                e.Cancel = true;
+                Hide();
+                return;
+            }
+            base.OnClosing(e);
+        }
+
+        private void InitializeTrayIcon()
+        {
+            var menu = new WinForms.ContextMenuStrip();
+            menu.Items.Add("Show", null, (s, e) => ShowWindow());
+            menu.Items.Add(new WinForms.ToolStripSeparator());
+            menu.Items.Add("Exit", null, (s, e) => ExitApp());
+
+            _trayIcon = new WinForms.NotifyIcon
+            {
+                Icon = _iconClosed,
+                Text = "Tradewatch",
+                ContextMenuStrip = menu,
+                Visible = true
+            };
+            _trayIcon.DoubleClick += (s, e) => ShowWindow();
+        }
+
+        private void ShowWindow()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+        }
+
+        private void ExitApp()
+        {
+            _isExiting = true;
+            _timer.Stop();
+            _trayIcon.Visible = false;
+            _trayIcon.Dispose();
+            Application.Current.Shutdown();
+        }
+
+        private void UpdateTrayIcon(bool anyOpen)
+        {
+            _trayIcon.Icon = anyOpen ? _iconOpen : _iconClosed;
+            _trayIcon.Text = anyOpen ? "Tradewatch — markets open" : "Tradewatch — all markets closed";
+        }
+
+        private System.Drawing.Icon CreateCircleIcon(System.Drawing.Color color)
+        {
+            using var bmp = new System.Drawing.Bitmap(16, 16);
+            using (var g = System.Drawing.Graphics.FromImage(bmp))
+            {
+                g.Clear(System.Drawing.Color.Transparent);
+                using var brush = new System.Drawing.SolidBrush(color);
+                g.FillEllipse(brush, 1, 1, 14, 14);
+            }
+            IntPtr hIcon = bmp.GetHicon();
+            var icon = (System.Drawing.Icon)System.Drawing.Icon.FromHandle(hIcon).Clone();
+            DestroyIcon(hIcon);
+            return icon;
         }
         private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
         {
