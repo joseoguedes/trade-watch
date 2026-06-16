@@ -28,6 +28,7 @@ namespace Tradewatch
         private bool _isExiting;
         private System.Drawing.Icon _iconOpen;
         private System.Drawing.Icon _iconClosed;
+        private readonly Dictionary<string, string> _lastKnownStatus = new();
 
         public MainWindow()
         {
@@ -90,6 +91,7 @@ namespace Tradewatch
 
             bool anyOpen = Exchanges.Any(ex => ex.IsEnabled && ex.Status == "Open");
             UpdateTrayIcon(anyOpen);
+            NotifyStatusChanges();
         }
 
         private string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd)
@@ -230,6 +232,33 @@ namespace Tradewatch
         {
             _trayIcon.Icon = anyOpen ? _iconOpen : _iconClosed;
             _trayIcon.Text = anyOpen ? "Tradewatch — markets open" : "Tradewatch — all markets closed";
+        }
+
+        private void NotifyStatusChanges()
+        {
+            var nowOpen = new List<string>();
+            var nowClosed = new List<string>();
+
+            foreach (var ex in Exchanges.Where(e => e.IsEnabled))
+            {
+                _lastKnownStatus.TryGetValue(ex.Name, out var previous);
+                if (previous == ex.Status || previous == null)
+                {
+                    _lastKnownStatus[ex.Name] = ex.Status;
+                    continue;
+                }
+
+                if (ex.Status == "Open") nowOpen.Add(ex.Name);
+                else nowClosed.Add(ex.Name);
+
+                _lastKnownStatus[ex.Name] = ex.Status;
+            }
+
+            if (nowOpen.Count > 0)
+                _trayIcon.ShowBalloonTip(4000, "Tradewatch", $"{string.Join(", ", nowOpen)} now Open", WinForms.ToolTipIcon.Info);
+
+            if (nowClosed.Count > 0)
+                _trayIcon.ShowBalloonTip(4000, "Tradewatch", $"{string.Join(", ", nowClosed)} now Closed", WinForms.ToolTipIcon.Info);
         }
 
         private System.Drawing.Icon CreateCircleIcon(System.Drawing.Color color)
