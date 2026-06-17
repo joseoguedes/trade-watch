@@ -15,25 +15,47 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- SEARCH BOX -->
-        <TextBox x:Name="SearchBox"
-                 Grid.Row="0"
-                 Margin="0,0,0,8"
-                 Padding="6,5"
-                 FontSize="13"
-                 Background="#1E1E1E"
-                 Foreground="White"
-                 CaretBrush="White"
-                 BorderBrush="#444"
-                 BorderThickness="1"
-                 Tag="Search exchanges..."
-                 TextChanged="SearchBox_TextChanged"
-                 GotFocus="SearchBox_GotFocus"
-                 LostFocus="SearchBox_LostFocus" />
+        <!-- SEARCH BOX with inline placeholder -->
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <TextBox x:Name="SearchBox"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="6,5"
+                     FontSize="13"
+                     Background="#1E1E1E"
+                     Foreground="White"
+                     CaretBrush="White"
+                     BorderBrush="#444"
+                     BorderThickness="1"/>
+            <TextBlock Text="Search exchanges..."
+                       IsHitTestVisible="False"
+                       Foreground="#888888"
+                       Padding="8,6"
+                       FontSize="13">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
 
         <!-- SCROLLABLE EXCHANGE LIST -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="ExchangeList" />
+            <ItemsControl ItemsSource="{Binding ItemsView}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Name}"
+                                  IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                  Margin="0,5"
+                                  Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
 
         <!-- BOTTOM BUTTONS -->
@@ -41,12 +63,12 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="0,10,0,0">
-            
+
             <Button x:Name="AddAllBtn"
                     Content="Add all"
                     Width="80"
                     Margin="5"
-                    Click="SelectAll_Click"
+                    Command="{Binding SelectAllCommand}"
                     Background="#333"
                     Foreground="White" />
 
@@ -54,15 +76,15 @@
                     Content="Remove all"
                     Width="90"
                     Margin="5"
-                    Click="ClearAll_Click"
+                    Command="{Binding ClearAllCommand}"
                     Background="#333"
                     Foreground="White" />
 
             <Button x:Name="CancelBtn"
-                    Content="Cancel"
+                    Content="Close"
                     Width="80"
                     Margin="5"
-                    Click="Cancel_Click"
+                    Command="{Binding CancelCommand}"
                     Background="#333"
                     Foreground="White" />
 
@@ -70,7 +92,7 @@
                     Content="Save"
                     Width="80"
                     Margin="5"
-                    Click="Save_Click"
+                    Command="{Binding SaveCommand}"
                     Background="#0E4E4A"
                     Foreground="White"
                     FontWeight="Bold" />

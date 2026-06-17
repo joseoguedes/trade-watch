@@ -62,7 +62,7 @@ namespace Tradewatch
         }
 
         public string StatusText => Status == "Open" ? "Open" : "Closed";
-        public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Brushes.Red;
+        public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Brushes.Gray;
 
         private string _countdown;
         public string Countdown
