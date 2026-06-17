@@ -7,5 +7,9 @@ namespace Tradewatch
         public List<string> EnabledExchanges { get; set; } = new List<string>();
         public string SelectedTheme { get; set; } = "Dark";
         public bool AlwaysOnTop { get; set; } = false;
+        public double WindowLeft { get; set; } = -1;
+        public double WindowTop { get; set; } = -1;
+        public double WindowWidth { get; set; } = 700;
+        public double WindowHeight { get; set; } = 500;
     }
 }

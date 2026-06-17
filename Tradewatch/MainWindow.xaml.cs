@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -30,6 +31,11 @@ namespace Tradewatch
             _vm = new MainViewModel();
             DataContext = _vm;
 
+            var s = _vm.LoadSettings();
+            if (s.WindowLeft >= 0) { Left = s.WindowLeft; Top = s.WindowTop; }
+            if (s.WindowWidth > 0) Width = s.WindowWidth;
+            if (s.WindowHeight > 0) Height = s.WindowHeight;
+
             _vm.ThemeChanged += ApplyTheme;
             _vm.AnyOpenChanged += UpdateTrayIcon;
             _vm.StatusChanged += ShowStatusBalloon;
@@ -47,6 +53,13 @@ namespace Tradewatch
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            var s = _vm.LoadSettings();
+            s.WindowLeft = Left;
+            s.WindowTop = Top;
+            s.WindowWidth = Width;
+            s.WindowHeight = Height;
+            _vm.SaveSettings(s);
+
             if (!_isExiting)
             {
                 e.Cancel = true;
@@ -142,7 +155,7 @@ namespace Tradewatch
                 Source = new Uri($"Themes/{(isDark ? "Dark" : "Light")}Theme.xaml", UriKind.Relative)
             });
 
-            Brush bg, fg, separator;
+            Brush bg, fg, separator, evenRowBg, oddRowBg;
             if (isDark)
             {
                 this.Background = new SolidColorBrush(Color.FromRgb(17, 17, 17));
@@ -152,8 +165,8 @@ namespace Tradewatch
                 LocalTimeText.Foreground = Brushes.White;
                 ExchangeGrid.Background = Brushes.Black;
                 ExchangeGrid.Foreground = Brushes.White;
-                ExchangeGrid.AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(25, 25, 25));
-                ExchangeGrid.RowBackground = Brushes.Black;
+                evenRowBg = Brushes.Black;
+                oddRowBg = new SolidColorBrush(Color.FromRgb(25, 25, 25));
                 bg = new SolidColorBrush(Color.FromRgb(11, 61, 58));
                 fg = Brushes.White;
                 separator = new SolidColorBrush(Color.FromRgb(30, 138, 128));
@@ -167,8 +180,8 @@ namespace Tradewatch
                 LocalTimeText.Foreground = Brushes.Black;
                 ExchangeGrid.Background = Brushes.White;
                 ExchangeGrid.Foreground = Brushes.Black;
-                ExchangeGrid.AlternatingRowBackground = Brushes.WhiteSmoke;
-                ExchangeGrid.RowBackground = Brushes.White;
+                evenRowBg = Brushes.White;
+                oddRowBg = Brushes.WhiteSmoke;
                 bg = new SolidColorBrush(Color.FromRgb(0xA8, 0xC4, 0xDC));
                 fg = Brushes.Black;
                 separator = new SolidColorBrush(Color.FromRgb(0x8B, 0xAE, 0xC8));
@@ -176,6 +189,46 @@ namespace Tradewatch
 
             ExchangeGrid.VerticalGridLinesBrush = separator;
             ExchangeGrid.HorizontalGridLinesBrush = separator;
+
+            var selectionBrush = isDark
+                ? new SolidColorBrush(Color.FromRgb(0x1D, 0x8C, 0x84))
+                : new SolidColorBrush(Color.FromRgb(0x7E, 0xB3, 0xD4));
+
+            ExchangeGrid.AlternationCount = 2;
+
+            var oddRowTrigger = new DataTrigger
+            {
+                Binding = new Binding("(ItemsControl.AlternationIndex)") { RelativeSource = RelativeSource.Self },
+                Value = 1
+            };
+            oddRowTrigger.Setters.Add(new Setter(DataGridRow.BackgroundProperty, oddRowBg));
+
+            var rowStyle = new Style(typeof(DataGridRow));
+            rowStyle.Setters.Add(new Setter(DataGridRow.BackgroundProperty, evenRowBg));
+            rowStyle.Triggers.Add(oddRowTrigger);
+            rowStyle.Triggers.Add(new Trigger
+            {
+                Property = DataGridRow.IsSelectedProperty,
+                Value = true,
+                Setters = { new Setter(DataGridRow.BackgroundProperty, selectionBrush) }
+            });
+            ExchangeGrid.RowStyle = rowStyle;
+
+            ExchangeGrid.Resources[SystemColors.HighlightBrushKey] = selectionBrush;
+            ExchangeGrid.Resources[SystemColors.HighlightTextBrushKey] = fg;
+            ExchangeGrid.Resources[SystemColors.InactiveSelectionHighlightBrushKey] = selectionBrush;
+            ExchangeGrid.Resources[SystemColors.InactiveSelectionHighlightTextBrushKey] = fg;
+
+            var cellStyle = new Style(typeof(DataGridCell));
+            cellStyle.Setters.Add(new Setter(DataGridCell.BorderBrushProperty, Brushes.Transparent));
+            cellStyle.Setters.Add(new Setter(DataGridCell.FocusVisualStyleProperty, null));
+            cellStyle.Triggers.Add(new Trigger
+            {
+                Property = DataGridCell.IsSelectedProperty,
+                Value = true,
+                Setters = { new Setter(DataGridCell.BackgroundProperty, Brushes.Transparent) }
+            });
+            ExchangeGrid.CellStyle = cellStyle;
 
             var headerStyle = new Style(typeof(DataGridColumnHeader));
             headerStyle.Setters.Add(new Setter(DataGridColumnHeader.BackgroundProperty, bg));
