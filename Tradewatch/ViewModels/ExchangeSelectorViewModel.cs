@@ -50,8 +50,8 @@ namespace Tradewatch.ViewModels
                  item.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
 
             SaveCommand = new RelayCommand(Save);
-            SelectAllCommand = new RelayCommand(() => { foreach (var i in _items) i.IsChecked = true; });
-            ClearAllCommand = new RelayCommand(() => { foreach (var i in _items) i.IsChecked = false; });
+            SelectAllCommand = new RelayCommand(() => { foreach (var i in ItemsView.Cast<ExchangeItem>()) i.IsChecked = true; });
+            ClearAllCommand = new RelayCommand(() => { foreach (var i in ItemsView.Cast<ExchangeItem>()) i.IsChecked = false; });
             CancelCommand = new RelayCommand(() => CloseRequested?.Invoke());
         }
 
