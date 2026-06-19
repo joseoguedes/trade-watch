@@ -236,42 +236,118 @@ namespace Tradewatch.ViewModels
 
         private static List<Exchange> GetExchanges() => new List<Exchange>
         {
+            // ── North America ──────────────────────────────────────────────────────
             new Exchange { Name = "New York Stock Exchange (NYSE)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
-            new Exchange { Name = "London Stock Exchange (LSE)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
-            new Exchange { Name = "Tokyo Stock Exchange (TSE)", TimeZone = "Tokyo Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(12,30,0) },
-            new Exchange { Name = "Hong Kong Stock Exchange (HKEX)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), LunchStart = new TimeSpan(12,0,0), LunchEnd = new TimeSpan(13,0,0) },
-            new Exchange { Name = "Euronext Paris", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
-            new Exchange { Name = "Australian Securities Exchange (ASX)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
             new Exchange { Name = "NASDAQ", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
             new Exchange { Name = "Toronto Stock Exchange (TSX)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Bolsa Mexicana de Valores (BMV)", TimeZone = "Central Standard Time (Mexico)", Open = new TimeSpan(8,30,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Bermuda Stock Exchange (BSX)", TimeZone = "Atlantic Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+
+            // ── Latin America ──────────────────────────────────────────────────────
+            new Exchange { Name = "São Paulo Stock Exchange (B3)", TimeZone = "E. South America Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Buenos Aires Stock Exchange (BCBA)", TimeZone = "Argentina Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Santiago Stock Exchange (BCS)", TimeZone = "Pacific SA Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0) },
+            new Exchange { Name = "Bolsa de Valores de Colombia (BVC)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Bolsa de Valores de Lima (BVL)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Jamaica Stock Exchange (JSE)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(14,0,0) },
+            new Exchange { Name = "Trinidad and Tobago Stock Exchange (TTSE)", TimeZone = "SA Western Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(14,0,0) },
+
+            // ── Western Europe ─────────────────────────────────────────────────────
+            new Exchange { Name = "London Stock Exchange (LSE)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
+            new Exchange { Name = "Euronext Paris", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
             new Exchange { Name = "Deutsche Börse (Frankfurt)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
             new Exchange { Name = "SIX Swiss Exchange (Zurich)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
             new Exchange { Name = "Madrid Stock Exchange (Bolsa de Madrid)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
             new Exchange { Name = "Borsa Italiana (Milan)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
             new Exchange { Name = "Euronext Amsterdam", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
-            new Exchange { Name = "Euronext Dublin (ISEQ)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
             new Exchange { Name = "Euronext Brussels", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
+            new Exchange { Name = "Euronext Dublin (ISEQ)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
+            new Exchange { Name = "Euronext Lisbon (PSI)", TimeZone = "GMT Standard Time", Open = new TimeSpan(8,0,0), Close = new TimeSpan(16,30,0) },
             new Exchange { Name = "Vienna Stock Exchange (WBAG)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
-            new Exchange { Name = "Athens Stock Exchange (ATHEX)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,20,0) },
             new Exchange { Name = "Oslo Stock Exchange (OSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,25,0) },
             new Exchange { Name = "Stockholm Stock Exchange (OMX)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
+            new Exchange { Name = "Luxembourg Stock Exchange (LuxSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,35,0) },
+            new Exchange { Name = "Malta Stock Exchange", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(12,0,0) },
+            new Exchange { Name = "Nasdaq Iceland", TimeZone = "Greenwich Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0) },
+
+            // ── Northern Europe ────────────────────────────────────────────────────
             new Exchange { Name = "Helsinki Stock Exchange (NASDAQ OMX)", TimeZone = "FLE Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,30,0) },
-            new Exchange { Name = "Shanghai Stock Exchange (SSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
-            new Exchange { Name = "Shenzhen Stock Exchange (SZSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
-            new Exchange { Name = "Singapore Exchange (SGX)", TimeZone = "Singapore Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
-            new Exchange { Name = "Bombay Stock Exchange (BSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
-            new Exchange { Name = "National Stock Exchange of India (NSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
-            new Exchange { Name = "Korea Exchange (KRX)", TimeZone = "Korea Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,30,0) },
-            new Exchange { Name = "Taiwan Stock Exchange (TWSE)", TimeZone = "Taipei Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,30,0) },
-            new Exchange { Name = "Indonesia Stock Exchange (IDX)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,30,0), FridayLunchEnd = new TimeSpan(14,0,0) },
-            new Exchange { Name = "Australian Securities Exchange (ASX 24 Futures)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(9,50,0), Close = new TimeSpan(16,30,0) },
-            new Exchange { Name = "New Zealand Exchange (NZX)", TimeZone = "New Zealand Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,45,0) },
-            new Exchange { Name = "São Paulo Stock Exchange (B3)", TimeZone = "E. South America Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,0,0) },
-            new Exchange { Name = "Buenos Aires Stock Exchange (BCBA)", TimeZone = "Argentina Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(17,0,0) },
-            new Exchange { Name = "Johannesburg Stock Exchange (JSE)", TimeZone = "South Africa Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Nasdaq Tallinn", TimeZone = "FLE Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Nasdaq Riga", TimeZone = "FLE Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Nasdaq Vilnius", TimeZone = "FLE Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
+
+            // ── Eastern / Southern Europe ──────────────────────────────────────────
+            new Exchange { Name = "Athens Stock Exchange (ATHEX)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,20,0) },
+            new Exchange { Name = "Warsaw Stock Exchange (GPW)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,5,0) },
+            new Exchange { Name = "Prague Stock Exchange (PSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,30,0) },
+            new Exchange { Name = "Budapest Stock Exchange (BSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Bucharest Stock Exchange (BVB)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,50,0) },
+            new Exchange { Name = "Zagreb Stock Exchange (ZSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Sofia Stock Exchange", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,30,0) },
+            new Exchange { Name = "Cyprus Stock Exchange (CSE)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,0,0) },
+            new Exchange { Name = "Borsa Istanbul (BIST)", TimeZone = "Turkey Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,0,0) },
+            new Exchange { Name = "Moscow Exchange (MOEX)", TimeZone = "Russian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,50,0) },
+
+            // ── Middle East — Sun–Thu ──────────────────────────────────────────────
             new Exchange { Name = "Saudi Stock Exchange (Tadawul)", TimeZone = "Arab Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(15,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
             new Exchange { Name = "Tel Aviv Stock Exchange (TASE)", TimeZone = "Israel Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
-            new Exchange { Name = "Euronext Lisbon (PSI)", TimeZone = "GMT Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0) },
+            new Exchange { Name = "Qatar Stock Exchange (QSE)", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(13,15,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Kuwait Boursa", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(12,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Bahrain Bourse (BHB)", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(12,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Muscat Securities Market (MSM)", TimeZone = "Arabian Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(13,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Egyptian Exchange (EGX)", TimeZone = "Egypt Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Amman Stock Exchange (ASE)", TimeZone = "Jordan Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+
+            // ── Middle East — Mon–Fri (UAE changed work week Jan 2022) ─────────────
+            new Exchange { Name = "Dubai Financial Market (DFM)", TimeZone = "Arabian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,50,0) },
+            new Exchange { Name = "Abu Dhabi Securities Exchange (ADX)", TimeZone = "Arabian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,30,0) },
+
+            // ── North Africa ───────────────────────────────────────────────────────
+            new Exchange { Name = "Casablanca Stock Exchange", TimeZone = "Morocco Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Tunis Stock Exchange (BVMT)", TimeZone = "W. Central Africa Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,30,0) },
+
+            // ── Sub-Saharan Africa ─────────────────────────────────────────────────
+            new Exchange { Name = "Johannesburg Stock Exchange (JSE)", TimeZone = "South Africa Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Nigeria Exchange Group (NGX)", TimeZone = "W. Central Africa Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,30,0) },
+            new Exchange { Name = "Nairobi Securities Exchange (NSE)", TimeZone = "E. Africa Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Ghana Stock Exchange (GSE)", TimeZone = "Greenwich Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "BRVM (West Africa)", TimeZone = "Greenwich Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Stock Exchange of Mauritius (SEM)", TimeZone = "Mauritius Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,30,0) },
+            new Exchange { Name = "Botswana Stock Exchange (BSE)", TimeZone = "South Africa Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,0,0) },
+            new Exchange { Name = "Zimbabwe Stock Exchange (ZSE)", TimeZone = "South Africa Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Dar es Salaam Stock Exchange (DSE)", TimeZone = "E. Africa Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,0,0) },
+
+            // ── South Asia ─────────────────────────────────────────────────────────
+            new Exchange { Name = "Bombay Stock Exchange (BSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "National Stock Exchange of India (NSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,15,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Pakistan Stock Exchange (PSX)", TimeZone = "Pakistan Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Colombo Stock Exchange (CSE)", TimeZone = "India Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(14,30,0) },
+            new Exchange { Name = "Dhaka Stock Exchange (DSE)", TimeZone = "Bangladesh Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+            new Exchange { Name = "Nepal Stock Exchange (NEPSE)", TimeZone = "Nepal Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(15,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday } },
+
+            // ── East Asia ──────────────────────────────────────────────────────────
+            new Exchange { Name = "Shanghai Stock Exchange (SSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
+            new Exchange { Name = "Shenzhen Stock Exchange (SZSE)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,0,0) },
+            new Exchange { Name = "Hong Kong Stock Exchange (HKEX)", TimeZone = "China Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), LunchStart = new TimeSpan(12,0,0), LunchEnd = new TimeSpan(13,0,0) },
+            new Exchange { Name = "Tokyo Stock Exchange (TSE)", TimeZone = "Tokyo Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Korea Exchange (KRX)", TimeZone = "Korea Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Taiwan Stock Exchange (TWSE)", TimeZone = "Taipei Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,30,0) },
+            new Exchange { Name = "Mongolia Stock Exchange (MSE)", TimeZone = "Ulaanbaatar Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Kazakhstan Stock Exchange (KASE)", TimeZone = "Ekaterinburg Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(17,0,0) },
+
+            // ── Southeast Asia ─────────────────────────────────────────────────────
+            new Exchange { Name = "Singapore Exchange (SGX)", TimeZone = "Singapore Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },
+            new Exchange { Name = "Bursa Malaysia (KLSE)", TimeZone = "Singapore Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0), LunchStart = new TimeSpan(12,30,0), LunchEnd = new TimeSpan(14,30,0) },
+            new Exchange { Name = "Philippine Stock Exchange (PSE)", TimeZone = "Singapore Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0) },
+            new Exchange { Name = "Stock Exchange of Thailand (SET)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,30,0), LunchStart = new TimeSpan(12,30,0), LunchEnd = new TimeSpan(14,30,0) },
+            new Exchange { Name = "Ho Chi Minh Stock Exchange (HOSE)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Hanoi Stock Exchange (HNX)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(15,0,0) },
+            new Exchange { Name = "Indonesia Stock Exchange (IDX)", TimeZone = "SE Asia Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), LunchStart = new TimeSpan(11,30,0), LunchEnd = new TimeSpan(13,30,0), FridayLunchEnd = new TimeSpan(14,0,0) },
+
+            // ── Pacific ────────────────────────────────────────────────────────────
+            new Exchange { Name = "Australian Securities Exchange (ASX)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "Australian Securities Exchange (ASX 24 Futures)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(9,50,0), Close = new TimeSpan(16,30,0) },
+            new Exchange { Name = "New Zealand Exchange (NZX)", TimeZone = "New Zealand Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,45,0) },
         };
 
         public event PropertyChangedEventHandler? PropertyChanged;
