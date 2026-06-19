@@ -23,6 +23,7 @@ namespace Tradewatch
         private bool _isExiting;
         private System.Drawing.Icon _iconOpen;
         private System.Drawing.Icon _iconClosed;
+        private System.Drawing.Icon _iconHoliday;
 
         public MainWindow()
         {
@@ -45,8 +46,13 @@ namespace Tradewatch
 
             _iconOpen = CreateCircleIcon(System.Drawing.Color.LimeGreen);
             _iconClosed = CreateCircleIcon(System.Drawing.Color.Gray);
+            _iconHoliday = CreateCircleIcon(System.Drawing.Color.Orange);
             InitializeTrayIcon();
-            UpdateTrayIcon(_vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open"));
+
+            string initialState = _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open") ? "Open"
+                                : _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Holiday") ? "Holiday"
+                                : "Closed";
+            UpdateTrayIcon(initialState);
 
             ApplyTheme(_vm.IsDark);
         }
@@ -102,10 +108,14 @@ namespace Tradewatch
             Application.Current.Shutdown();
         }
 
-        private void UpdateTrayIcon(bool anyOpen)
+        private void UpdateTrayIcon(string marketState)
         {
-            _trayIcon.Icon = anyOpen ? _iconOpen : _iconClosed;
-            _trayIcon.Text = anyOpen ? "Tradewatch — markets open" : "Tradewatch — all markets closed";
+            _trayIcon.Icon = marketState == "Open" ? _iconOpen
+                           : marketState == "Holiday" ? _iconHoliday
+                           : _iconClosed;
+            _trayIcon.Text = marketState == "Open" ? "Tradewatch — markets open"
+                           : marketState == "Holiday" ? "Tradewatch — markets on holiday"
+                           : "Tradewatch — all markets closed";
         }
 
         private void ShowStatusBalloon(IReadOnlyList<string> opened, IReadOnlyList<string> closed)

@@ -15,8 +15,10 @@ namespace Tradewatch.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly string _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private readonly string _holidaysPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "holidays.json");
         private readonly DispatcherTimer _timer;
         private readonly Dictionary<string, string> _lastKnownStatus = new();
+        private Dictionary<string, HashSet<string>> _holidays = new();
 
         public ObservableCollection<Exchange> AllExchanges { get; }
 
@@ -67,7 +69,7 @@ namespace Tradewatch.ViewModels
 
         // Events for code-behind to handle UI-only concerns
         public event Action<bool> ThemeChanged;
-        public event Action<bool> AnyOpenChanged;
+        public event Action<string> AnyOpenChanged; // "Open", "Holiday", or "Closed"
         public event Action<IReadOnlyList<string>, IReadOnlyList<string>> StatusChanged;
         public event Action ExitRequested;
         public event Action ManageExchangesRequested;
@@ -82,6 +84,8 @@ namespace Tradewatch.ViewModels
         public MainViewModel()
         {
             AllExchanges = new ObservableCollection<Exchange>(GetExchanges());
+
+            LoadHolidays();
 
             var settings = LoadSettings();
             foreach (var ex in AllExchanges)
@@ -127,23 +131,36 @@ namespace Tradewatch.ViewModels
             {
                 var tz = TimeZoneInfo.FindSystemTimeZoneById(e.TimeZone);
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+
+                _holidays.TryGetValue(e.Name, out var exchangeHolidays);
+                bool isHoliday = exchangeHolidays != null
+                              && exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd"));
+
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
-                bool inLunch = e.LunchStart.HasValue && effectiveLunchEnd.HasValue
+                bool inLunch = !isHoliday
+                            && e.LunchStart.HasValue && effectiveLunchEnd.HasValue
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < effectiveLunchEnd.Value;
-                bool isOpen = localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
+                bool isOpen = !isHoliday
+                            && localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
                             && !e.WeekendDays.Contains(localTime.DayOfWeek)
                             && !inLunch;
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
-                e.Status = isOpen ? "Open" : "Closed";
-                e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd);
+                e.Status = isOpen ? "Open" : isHoliday ? "Holiday" : "Closed";
+                e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd, exchangeHolidays);
             }
 
-            bool anyOpen = AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open");
-            AnyOpenChanged?.Invoke(anyOpen);
+            string marketState;
+            if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open"))
+                marketState = "Open";
+            else if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Holiday"))
+                marketState = "Holiday";
+            else
+                marketState = "Closed";
+            AnyOpenChanged?.Invoke(marketState);
             NotifyStatusChanges();
         }
 
@@ -171,7 +188,7 @@ namespace Tradewatch.ViewModels
                 StatusChanged?.Invoke(nowOpen, nowClosed);
         }
 
-        private static string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd)
+        private static string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string> holidays)
         {
             if (isOpen)
                 return "Closes in " + FormatCountdown(e.Close - localTime.TimeOfDay);
@@ -179,20 +196,23 @@ namespace Tradewatch.ViewModels
             if (inLunch && effectiveLunchEnd.HasValue)
                 return "Opens in " + FormatCountdown(effectiveLunchEnd.Value - localTime.TimeOfDay);
 
-            return "Opens in " + FormatCountdown(GetNextOpen(e, localTime) - localTime);
+            return "Opens in " + FormatCountdown(GetNextOpen(e, localTime, holidays) - localTime);
         }
 
-        private static DateTime GetNextOpen(Exchange e, DateTime localTime)
+        private static DateTime GetNextOpen(Exchange e, DateTime localTime, HashSet<string> holidays = null)
         {
             var today = localTime.Date;
 
-            if (!e.WeekendDays.Contains(today.DayOfWeek) && localTime.TimeOfDay < e.Open)
+            if (!e.WeekendDays.Contains(today.DayOfWeek)
+                && localTime.TimeOfDay < e.Open
+                && (holidays == null || !holidays.Contains(today.ToString("yyyy-MM-dd"))))
                 return today + e.Open;
 
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 14; i++)
             {
                 var next = today.AddDays(i);
-                if (!e.WeekendDays.Contains(next.DayOfWeek))
+                if (!e.WeekendDays.Contains(next.DayOfWeek)
+                    && (holidays == null || !holidays.Contains(next.ToString("yyyy-MM-dd"))))
                     return next + e.Open;
             }
 
@@ -207,6 +227,20 @@ namespace Tradewatch.ViewModels
             if (span.TotalMinutes >= 1)
                 return $"{span.Minutes}m {span.Seconds:D2}s";
             return $"{span.Seconds}s";
+        }
+
+        private void LoadHolidays()
+        {
+            try
+            {
+                if (!File.Exists(_holidaysPath)) return;
+                var json = File.ReadAllText(_holidaysPath);
+                var raw = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json);
+                if (raw == null) return;
+                foreach (var kv in raw)
+                    _holidays[kv.Key] = new HashSet<string>(kv.Value);
+            }
+            catch { }
         }
 
         public AppSettings LoadSettings()
