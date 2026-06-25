@@ -14,13 +14,21 @@ namespace Tradewatch.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly string _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private static readonly string _settingsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "Tradewatch", "settings.json");
         private readonly string _holidaysPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "holidays.json");
+        private static readonly string _logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Tradewatch", "error.log");
         private readonly DispatcherTimer _timer;
-        private readonly Dictionary<string, string> _lastKnownStatus = new();
+        private readonly Dictionary<string, MarketStatus?> _lastKnownStatus = new();
         private Dictionary<string, HashSet<string>> _holidays = new();
+        private readonly Dictionary<string, TimeZoneInfo> _tzCache = new();
+        private AppSettings _settings;
 
         public ObservableCollection<Exchange> AllExchanges { get; }
+        public AppSettings Settings => _settings;
 
         private ObservableCollection<Exchange> _displayedExchanges;
         public ObservableCollection<Exchange> DisplayedExchanges
@@ -45,9 +53,8 @@ namespace Tradewatch.ViewModels
                 if (_isDark == value) return;
                 _isDark = value;
                 OnPropertyChanged();
-                var s = LoadSettings();
-                s.SelectedTheme = _isDark ? "Dark" : "Light";
-                SaveSettings(s);
+                _settings.SelectedTheme = _isDark ? "Dark" : "Light";
+                SaveSettings(_settings);
                 ThemeChanged?.Invoke(_isDark);
             }
         }
@@ -61,15 +68,14 @@ namespace Tradewatch.ViewModels
                 if (_alwaysOnTop == value) return;
                 _alwaysOnTop = value;
                 OnPropertyChanged();
-                var s = LoadSettings();
-                s.AlwaysOnTop = _alwaysOnTop;
-                SaveSettings(s);
+                _settings.AlwaysOnTop = _alwaysOnTop;
+                SaveSettings(_settings);
             }
         }
 
         // Events for code-behind to handle UI-only concerns
         public event Action<bool> ThemeChanged;
-        public event Action<string> AnyOpenChanged; // "Open", "Holiday", or "Closed"
+        public event Action<MarketStatus> AnyOpenChanged;
         public event Action<IReadOnlyList<string>, IReadOnlyList<string>> StatusChanged;
         public event Action ExitRequested;
         public event Action ManageExchangesRequested;
@@ -85,14 +91,20 @@ namespace Tradewatch.ViewModels
         {
             AllExchanges = new ObservableCollection<Exchange>(GetExchanges());
 
+            foreach (var ex in AllExchanges)
+            {
+                try { _tzCache[ex.TimeZone] = TimeZoneInfo.FindSystemTimeZoneById(ex.TimeZone); }
+                catch (TimeZoneNotFoundException e) { LogError($"Unknown timezone '{ex.TimeZone}' for exchange '{ex.Name}'", e); }
+            }
+
             LoadHolidays();
 
-            var settings = LoadSettings();
+            _settings = LoadSettings();
             foreach (var ex in AllExchanges)
-                ex.IsEnabled = settings.EnabledExchanges.Contains(ex.Name);
+                ex.IsEnabled = _settings.EnabledExchanges.Contains(ex.Name);
 
-            _isDark = settings.SelectedTheme != "Light";
-            _alwaysOnTop = settings.AlwaysOnTop;
+            _isDark = _settings.SelectedTheme != "Light";
+            _alwaysOnTop = _settings.AlwaysOnTop;
 
             RefreshDisplayed();
 
@@ -115,12 +127,20 @@ namespace Tradewatch.ViewModels
 
         public void SaveEnabledExchanges()
         {
-            var settings = LoadSettings();
-            settings.EnabledExchanges = AllExchanges.Where(e => e.IsEnabled).Select(e => e.Name).ToList();
-            SaveSettings(settings);
+            _settings.EnabledExchanges = AllExchanges.Where(e => e.IsEnabled).Select(e => e.Name).ToList();
+            SaveSettings(_settings);
         }
 
         public void StopTimer() => _timer.Stop();
+
+        public void SaveWindowPosition(double left, double top, double width, double height)
+        {
+            _settings.WindowLeft = left;
+            _settings.WindowTop = top;
+            _settings.WindowWidth = width;
+            _settings.WindowHeight = height;
+            SaveSettings(_settings);
+        }
 
         private void Tick()
         {
@@ -129,7 +149,7 @@ namespace Tradewatch.ViewModels
 
             foreach (var e in AllExchanges)
             {
-                var tz = TimeZoneInfo.FindSystemTimeZoneById(e.TimeZone);
+                if (!_tzCache.TryGetValue(e.TimeZone, out var tz)) continue;
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
 
                 _holidays.TryGetValue(e.Name, out var exchangeHolidays);
@@ -149,17 +169,17 @@ namespace Tradewatch.ViewModels
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
-                e.Status = isOpen ? "Open" : isHoliday ? "Holiday" : "Closed";
+                e.Status = isOpen ? MarketStatus.Open : isHoliday ? MarketStatus.Holiday : MarketStatus.Closed;
                 e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd, exchangeHolidays);
             }
 
-            string marketState;
-            if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open"))
-                marketState = "Open";
-            else if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Holiday"))
-                marketState = "Holiday";
+            MarketStatus marketState;
+            if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == MarketStatus.Open))
+                marketState = MarketStatus.Open;
+            else if (AllExchanges.Any(ex => ex.IsEnabled && ex.Status == MarketStatus.Holiday))
+                marketState = MarketStatus.Holiday;
             else
-                marketState = "Closed";
+                marketState = MarketStatus.Closed;
             AnyOpenChanged?.Invoke(marketState);
             NotifyStatusChanges();
         }
@@ -178,7 +198,7 @@ namespace Tradewatch.ViewModels
                     continue;
                 }
 
-                if (ex.Status == "Open") nowOpen.Add(ex.Name);
+                if (ex.Status == MarketStatus.Open) nowOpen.Add(ex.Name);
                 else nowClosed.Add(ex.Name);
 
                 _lastKnownStatus[ex.Name] = ex.Status;
@@ -240,7 +260,7 @@ namespace Tradewatch.ViewModels
                 foreach (var kv in raw)
                     _holidays[kv.Key] = new HashSet<string>(kv.Value);
             }
-            catch { }
+            catch (Exception ex) { LogError($"Failed to load holidays from {_holidaysPath}", ex); }
         }
 
         public AppSettings LoadSettings()
@@ -252,8 +272,9 @@ namespace Tradewatch.ViewModels
                 string json = File.ReadAllText(_settingsPath);
                 return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
             }
-            catch
+            catch (Exception ex)
             {
+                LogError($"Failed to load settings from {_settingsPath}", ex);
                 return new AppSettings { EnabledExchanges = AllExchanges.Select(e => e.Name).ToList() };
             }
         }
@@ -262,8 +283,19 @@ namespace Tradewatch.ViewModels
         {
             try
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(_settingsPath)!);
                 string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_settingsPath, json);
+            }
+            catch (Exception ex) { LogError($"Failed to save settings to {_settingsPath}", ex); }
+        }
+
+        private static void LogError(string message, Exception ex)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_logPath)!);
+                File.AppendAllText(_logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}: {ex}\n");
             }
             catch { }
         }

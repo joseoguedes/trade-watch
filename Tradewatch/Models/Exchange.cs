@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Media;
 
 namespace Tradewatch
 {
@@ -45,8 +44,8 @@ namespace Tradewatch
             }
         }
 
-        private string _status;
-        public string Status
+        private MarketStatus _status;
+        public MarketStatus Status
         {
             get => _status;
             set
@@ -56,13 +55,11 @@ namespace Tradewatch
                     _status = value;
                     OnPropertyChanged(nameof(Status));
                     OnPropertyChanged(nameof(StatusText));
-                    OnPropertyChanged(nameof(StatusColor));
                 }
             }
         }
 
-        public string StatusText => Status == "Open" ? "Open" : Status == "Holiday" ? "Holiday" : "Closed";
-        public Brush StatusColor => Status == "Open" ? Brushes.LimeGreen : Status == "Holiday" ? Brushes.Orange : Brushes.Gray;
+        public string StatusText => Status.ToString();
 
         private string _countdown;
         public string Countdown

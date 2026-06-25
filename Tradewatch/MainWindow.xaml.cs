@@ -32,7 +32,7 @@ namespace Tradewatch
             _vm = new MainViewModel();
             DataContext = _vm;
 
-            var s = _vm.LoadSettings();
+            var s = _vm.Settings;
             if (s.WindowLeft >= 0) { Left = s.WindowLeft; Top = s.WindowTop; }
             if (s.WindowWidth > 0) Width = s.WindowWidth;
             if (s.WindowHeight > 0) Height = s.WindowHeight;
@@ -49,9 +49,9 @@ namespace Tradewatch
             _iconHoliday = CreateCircleIcon(System.Drawing.Color.Orange);
             InitializeTrayIcon();
 
-            string initialState = _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Open") ? "Open"
-                                : _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == "Holiday") ? "Holiday"
-                                : "Closed";
+            var initialState = _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == MarketStatus.Open) ? MarketStatus.Open
+                             : _vm.AllExchanges.Any(ex => ex.IsEnabled && ex.Status == MarketStatus.Holiday) ? MarketStatus.Holiday
+                             : MarketStatus.Closed;
             UpdateTrayIcon(initialState);
 
             ApplyTheme(_vm.IsDark);
@@ -59,12 +59,7 @@ namespace Tradewatch
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            var s = _vm.LoadSettings();
-            s.WindowLeft = Left;
-            s.WindowTop = Top;
-            s.WindowWidth = Width;
-            s.WindowHeight = Height;
-            _vm.SaveSettings(s);
+            _vm.SaveWindowPosition(Left, Top, Width, Height);
 
             if (!_isExiting)
             {
@@ -99,22 +94,41 @@ namespace Tradewatch
             Activate();
         }
 
+        private void UnsubscribeEvents()
+        {
+            _vm.ThemeChanged -= ApplyTheme;
+            _vm.AnyOpenChanged -= UpdateTrayIcon;
+            _vm.StatusChanged -= ShowStatusBalloon;
+            _vm.ExitRequested -= ExitApp;
+            _vm.ManageExchangesRequested -= OpenExchangeSelector;
+            _vm.AboutRequested -= ShowAbout;
+        }
+
         private void ExitApp()
         {
             _isExiting = true;
+            UnsubscribeEvents();
             _vm.StopTimer();
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
             Application.Current.Shutdown();
         }
 
-        private void UpdateTrayIcon(string marketState)
+        protected override void OnClosed(EventArgs e)
         {
-            _trayIcon.Icon = marketState == "Open" ? _iconOpen
-                           : marketState == "Holiday" ? _iconHoliday
+            _iconOpen?.Dispose();
+            _iconClosed?.Dispose();
+            _iconHoliday?.Dispose();
+            base.OnClosed(e);
+        }
+
+        private void UpdateTrayIcon(MarketStatus marketState)
+        {
+            _trayIcon.Icon = marketState == MarketStatus.Open ? _iconOpen
+                           : marketState == MarketStatus.Holiday ? _iconHoliday
                            : _iconClosed;
-            _trayIcon.Text = marketState == "Open" ? "Tradewatch — markets open"
-                           : marketState == "Holiday" ? "Tradewatch — markets on holiday"
+            _trayIcon.Text = marketState == MarketStatus.Open ? "Tradewatch — markets open"
+                           : marketState == MarketStatus.Holiday ? "Tradewatch — markets on holiday"
                            : "Tradewatch — all markets closed";
         }
 
@@ -258,6 +272,30 @@ namespace Tradewatch
 
             foreach (var col in ExchangeGrid.Columns.Skip(1))
                 col.HeaderStyle = centeredHeaderStyle;
+
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, new Action(() =>
+            {
+                var vScrollBar = FindVisualDescendants<System.Windows.Controls.Primitives.ScrollBar>(ExchangeGrid)
+                    .FirstOrDefault(s => s.Orientation == Orientation.Vertical);
+                if (vScrollBar == null) return;
+
+                // The DataGrid template places the vertical scrollbar at row 0, rowspan 2,
+                // which puts its top (the up-arrow button) inside the column header row.
+                // Moving it to row 1 only makes it start at the data area — no more square.
+                Grid.SetRow(vScrollBar, 1);
+                Grid.SetRowSpan(vScrollBar, 1);
+            }));
+        }
+
+        private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T t) yield return t;
+                foreach (var desc in FindVisualDescendants<T>(child))
+                    yield return desc;
+            }
         }
 
         private System.Drawing.Icon CreateCircleIcon(System.Drawing.Color color)

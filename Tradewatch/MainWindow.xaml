@@ -203,7 +203,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Ellipse Width="12" Height="12" Fill="{Binding StatusColor}" Margin="0,0,6,0"/>
+                                <Ellipse Width="12" Height="12" Fill="{Binding Status, Converter={StaticResource MarketStatusToColorConverter}}" Margin="0,0,6,0"/>
                                 <TextBlock Text="{Binding StatusText}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGrid}}" FontWeight="Bold"/>
                             </StackPanel>
                         </DataTemplate>
