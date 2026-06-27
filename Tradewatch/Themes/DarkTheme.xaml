@@ -22,6 +22,11 @@
     <SolidColorBrush x:Key="NextToOpenBarNameBrush" Color="#0aff9d" />
     <SolidColorBrush x:Key="NextToOpenBarCountdownBrush" Color="White" />
 
+    <!-- REGION GROUP HEADER BRUSHES -->
+    <SolidColorBrush x:Key="GroupHeaderBgBrush" Color="#0A2420" />
+    <SolidColorBrush x:Key="GroupHeaderFgBrush" Color="#0aff9d" />
+    <SolidColorBrush x:Key="GroupHeaderBorderBrush" Color="#1A4A44" />
+
     <!-- DARK THEME SCROLLBAR BRUSHES -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#333333" />
     <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#0aff9d" />

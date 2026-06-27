@@ -32,6 +32,14 @@ namespace Tradewatch
             _vm = new MainViewModel();
             DataContext = _vm;
 
+            ApplyGrouping();
+            _vm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(MainViewModel.DisplayedExchanges) ||
+                    e.PropertyName == nameof(MainViewModel.GroupByRegion))
+                    ApplyGrouping();
+            };
+
             var s = _vm.Settings;
             if (s.WindowLeft >= 0) { Left = s.WindowLeft; Top = s.WindowTop; }
             if (s.WindowWidth > 0) Width = s.WindowWidth;
@@ -285,6 +293,14 @@ namespace Tradewatch
                 Grid.SetRow(vScrollBar, 1);
                 Grid.SetRowSpan(vScrollBar, 1);
             }));
+        }
+
+        private void ApplyGrouping()
+        {
+            var view = CollectionViewSource.GetDefaultView(_vm.DisplayedExchanges);
+            view.GroupDescriptions.Clear();
+            if (_vm.GroupByRegion)
+                view.GroupDescriptions.Add(new PropertyGroupDescription("Region"));
         }
 
         private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject parent) where T : DependencyObject

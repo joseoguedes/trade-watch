@@ -17,6 +17,7 @@ namespace Tradewatch
         public TimeSpan? PreMarketClose { get; set; }
         public TimeSpan? AfterHoursOpen { get; set; }
         public TimeSpan? AfterHoursClose { get; set; }
+        public string Region { get; set; } = "";
         public bool IsEnabled { get; set; } = true;
         public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 

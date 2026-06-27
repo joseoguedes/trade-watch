@@ -169,6 +169,9 @@
                           Header="Always on Top"
                           IsCheckable="True"
                           IsChecked="{Binding AlwaysOnTop, Mode=TwoWay}"/>
+                <MenuItem Header="Group by Region"
+                          IsCheckable="True"
+                          IsChecked="{Binding GroupByRegion, Mode=TwoWay}"/>
             </MenuItem>
         </Menu>
 
@@ -253,6 +256,65 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
+
+            <DataGrid.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <StackPanel>
+                                            <ToggleButton x:Name="Toggle" IsChecked="True" Focusable="False">
+                                                <ToggleButton.Template>
+                                                    <ControlTemplate TargetType="ToggleButton">
+                                                        <Border Background="{DynamicResource GroupHeaderBgBrush}"
+                                                                BorderBrush="{DynamicResource GroupHeaderBorderBrush}"
+                                                                BorderThickness="0,0,0,1"
+                                                                Padding="12,7"
+                                                                Cursor="Hand">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Path x:Name="Arrow"
+                                                                      Data="M 0 0 L 8 0 L 4 7 Z"
+                                                                      Fill="{DynamicResource GroupHeaderFgBrush}"
+                                                                      Width="8" Height="7"
+                                                                      Stretch="Fill"
+                                                                      Margin="0,0,10,0"
+                                                                      VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           Foreground="{DynamicResource GroupHeaderFgBrush}"
+                                                                           FontWeight="SemiBold"
+                                                                           FontSize="13"
+                                                                           VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding ItemCount, StringFormat=' ({0})'}"
+                                                                           Foreground="{DynamicResource GroupHeaderFgBrush}"
+                                                                           FontSize="12"
+                                                                           Opacity="0.6"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsChecked" Value="False">
+                                                                <Setter TargetName="Arrow" Property="Data" Value="M 0 0 L 7 4 L 0 8 Z"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </ToggleButton.Template>
+                                            </ToggleButton>
+                                            <ItemsPresenter x:Name="Items"/>
+                                        </StackPanel>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger SourceName="Toggle" Property="IsChecked" Value="False">
+                                                <Setter TargetName="Items" Property="Visibility" Value="Collapsed"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
         </DataGrid>
 
         <Border Grid.Row="4"
