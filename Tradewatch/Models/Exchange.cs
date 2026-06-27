@@ -6,8 +6,8 @@ namespace Tradewatch
 {
     public class Exchange : INotifyPropertyChanged
     {
-        public string Name { get; set; }
-        public string TimeZone { get; set; }
+        public string Name { get; set; } = null!;
+        public string TimeZone { get; set; } = null!;
         public TimeSpan Open { get; set; }
         public TimeSpan Close { get; set; }
         public TimeSpan? LunchStart { get; set; }
@@ -16,7 +16,7 @@ namespace Tradewatch
         public bool IsEnabled { get; set; } = true;
         public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 
-        private string _localTime;
+        private string _localTime = "";
         public string LocalTime
         {
             get => _localTime;
@@ -30,7 +30,7 @@ namespace Tradewatch
             }
         }
 
-        private string _openCloseHours;
+        private string _openCloseHours = "";
         public string OpenCloseHours
         {
             get => _openCloseHours;
@@ -61,7 +61,7 @@ namespace Tradewatch
 
         public string StatusText => Status.ToString();
 
-        private string _countdown;
+        private string _countdown = "";
         public string Countdown
         {
             get => _countdown;

@@ -18,8 +18,8 @@ namespace Tradewatch
         [DllImport("user32.dll")] private static extern bool DestroyIcon(IntPtr handle);
 
         private MainViewModel _vm;
-        private ExchangeSelectorWindow _selectorWindow;
-        private WinForms.NotifyIcon _trayIcon;
+        private ExchangeSelectorWindow? _selectorWindow;
+        private WinForms.NotifyIcon _trayIcon = null!;
         private bool _isExiting;
         private System.Drawing.Icon _iconOpen;
         private System.Drawing.Icon _iconClosed;

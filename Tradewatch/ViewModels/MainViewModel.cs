@@ -30,14 +30,14 @@ namespace Tradewatch.ViewModels
         public ObservableCollection<Exchange> AllExchanges { get; }
         public AppSettings Settings => _settings;
 
-        private ObservableCollection<Exchange> _displayedExchanges;
+        private ObservableCollection<Exchange> _displayedExchanges = null!;
         public ObservableCollection<Exchange> DisplayedExchanges
         {
             get => _displayedExchanges;
             private set { _displayedExchanges = value; OnPropertyChanged(); }
         }
 
-        private string _localTime;
+        private string _localTime = "";
         public string LocalTime
         {
             get => _localTime;
@@ -74,12 +74,12 @@ namespace Tradewatch.ViewModels
         }
 
         // Events for code-behind to handle UI-only concerns
-        public event Action<bool> ThemeChanged;
-        public event Action<MarketStatus> AnyOpenChanged;
-        public event Action<IReadOnlyList<string>, IReadOnlyList<string>> StatusChanged;
-        public event Action ExitRequested;
-        public event Action ManageExchangesRequested;
-        public event Action AboutRequested;
+        public event Action<bool>? ThemeChanged;
+        public event Action<MarketStatus>? AnyOpenChanged;
+        public event Action<IReadOnlyList<string>, IReadOnlyList<string>>? StatusChanged;
+        public event Action? ExitRequested;
+        public event Action? ManageExchangesRequested;
+        public event Action? AboutRequested;
 
         public ICommand ExitCommand { get; }
         public ICommand AboutCommand { get; }
@@ -208,7 +208,7 @@ namespace Tradewatch.ViewModels
                 StatusChanged?.Invoke(nowOpen, nowClosed);
         }
 
-        private static string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string> holidays)
+        private static string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string>? holidays)
         {
             if (isOpen)
                 return "Closes in " + FormatCountdown(e.Close - localTime.TimeOfDay);
@@ -219,7 +219,7 @@ namespace Tradewatch.ViewModels
             return "Opens in " + FormatCountdown(GetNextOpen(e, localTime, holidays) - localTime);
         }
 
-        private static DateTime GetNextOpen(Exchange e, DateTime localTime, HashSet<string> holidays = null)
+        private static DateTime GetNextOpen(Exchange e, DateTime localTime, HashSet<string>? holidays = null)
         {
             var today = localTime.Date;
 
@@ -417,7 +417,7 @@ namespace Tradewatch.ViewModels
         };
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

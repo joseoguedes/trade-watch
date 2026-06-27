@@ -29,7 +29,7 @@ namespace Tradewatch.ViewModels
             }
         }
 
-        public event Action CloseRequested;
+        public event Action? CloseRequested;
 
         public ICommand SaveCommand { get; }
         public ICommand SelectAllCommand { get; }
@@ -66,14 +66,14 @@ namespace Tradewatch.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     public class ExchangeItem : INotifyPropertyChanged
     {
         private bool _isChecked;
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public bool IsChecked
         {
@@ -82,7 +82,7 @@ namespace Tradewatch.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
