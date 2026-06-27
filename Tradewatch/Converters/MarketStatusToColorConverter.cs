@@ -11,6 +11,7 @@ namespace Tradewatch.Converters
         {
             if (value is MarketStatus status)
                 return status == MarketStatus.Open ? Brushes.LimeGreen
+                     : status == MarketStatus.PreMarket || status == MarketStatus.AfterHours ? Brushes.CornflowerBlue
                      : status == MarketStatus.Holiday ? Brushes.Orange
                      : (object)Brushes.Gray;
             return Brushes.Gray;

@@ -1,4 +1,4 @@
 namespace Tradewatch
 {
-    public enum MarketStatus { Open, Holiday, Closed }
+    public enum MarketStatus { Open, PreMarket, AfterHours, Holiday, Closed }
 }

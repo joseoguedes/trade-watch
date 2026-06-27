@@ -183,15 +183,28 @@ namespace Tradewatch.ViewModels
                             && e.LunchStart.HasValue && effectiveLunchEnd.HasValue
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < effectiveLunchEnd.Value;
+                bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
                 bool isOpen = !isHoliday
                             && localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
-                            && !e.WeekendDays.Contains(localTime.DayOfWeek)
+                            && !isWeekend
                             && !inLunch;
+                bool isPreMarket = !isHoliday && !isOpen && !isWeekend
+                            && e.PreMarketOpen.HasValue && e.PreMarketClose.HasValue
+                            && localTime.TimeOfDay >= e.PreMarketOpen.Value
+                            && localTime.TimeOfDay < e.PreMarketClose.Value;
+                bool isAfterHours = !isHoliday && !isOpen && !isWeekend
+                            && e.AfterHoursOpen.HasValue && e.AfterHoursClose.HasValue
+                            && localTime.TimeOfDay >= e.AfterHoursOpen.Value
+                            && localTime.TimeOfDay < e.AfterHoursClose.Value;
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
-                e.Status = isOpen ? MarketStatus.Open : isHoliday ? MarketStatus.Holiday : MarketStatus.Closed;
-                e.Countdown = ComputeCountdown(e, localTime, isOpen, inLunch, effectiveLunchEnd, exchangeHolidays);
+                e.Status = isOpen       ? MarketStatus.Open
+                         : isPreMarket  ? MarketStatus.PreMarket
+                         : isAfterHours ? MarketStatus.AfterHours
+                         : isHoliday    ? MarketStatus.Holiday
+                                        : MarketStatus.Closed;
+                e.Countdown = ComputeCountdown(e, localTime, e.Status, inLunch, effectiveLunchEnd, exchangeHolidays);
             }
 
             MarketStatus marketState;
@@ -264,8 +277,10 @@ namespace Tradewatch.ViewModels
                     continue;
                 }
 
-                if (ex.Status == MarketStatus.Open) nowOpen.Add(ex.Name);
-                else nowClosed.Add(ex.Name);
+                bool wasOpen = previous == MarketStatus.Open;
+                bool isNowOpen = ex.Status == MarketStatus.Open;
+                if (!wasOpen && isNowOpen) nowOpen.Add(ex.Name);
+                else if (wasOpen && !isNowOpen) nowClosed.Add(ex.Name);
 
                 _lastKnownStatus[ex.Name] = ex.Status;
             }
@@ -274,10 +289,13 @@ namespace Tradewatch.ViewModels
                 StatusChanged?.Invoke(nowOpen, nowClosed);
         }
 
-        private static string ComputeCountdown(Exchange e, DateTime localTime, bool isOpen, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string>? holidays)
+        private static string ComputeCountdown(Exchange e, DateTime localTime, MarketStatus status, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string>? holidays)
         {
-            if (isOpen)
+            if (status == MarketStatus.Open)
                 return "Closes in " + FormatCountdown(e.Close - localTime.TimeOfDay);
+
+            if (status == MarketStatus.AfterHours && e.AfterHoursClose.HasValue)
+                return "Closes in " + FormatCountdown(e.AfterHoursClose.Value - localTime.TimeOfDay);
 
             if (inLunch && effectiveLunchEnd.HasValue)
                 return "Opens in " + FormatCountdown(effectiveLunchEnd.Value - localTime.TimeOfDay);
@@ -369,8 +387,8 @@ namespace Tradewatch.ViewModels
         private static List<Exchange> GetExchanges() => new List<Exchange>
         {
             // ── North America ──────────────────────────────────────────────────────
-            new Exchange { Name = "New York Stock Exchange (NYSE)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
-            new Exchange { Name = "NASDAQ", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
+            new Exchange { Name = "New York Stock Exchange (NYSE)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), PreMarketOpen = new TimeSpan(4,0,0), PreMarketClose = new TimeSpan(9,30,0), AfterHoursOpen = new TimeSpan(16,0,0), AfterHoursClose = new TimeSpan(20,0,0) },
+            new Exchange { Name = "NASDAQ", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), PreMarketOpen = new TimeSpan(4,0,0), PreMarketClose = new TimeSpan(9,30,0), AfterHoursOpen = new TimeSpan(16,0,0), AfterHoursClose = new TimeSpan(20,0,0) },
             new Exchange { Name = "Toronto Stock Exchange (TSX)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0) },
             new Exchange { Name = "Bolsa Mexicana de Valores (BMV)", TimeZone = "Central Standard Time (Mexico)", Open = new TimeSpan(8,30,0), Close = new TimeSpan(15,0,0) },
             new Exchange { Name = "Bermuda Stock Exchange (BSX)", TimeZone = "Atlantic Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0) },

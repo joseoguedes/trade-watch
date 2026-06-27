@@ -13,6 +13,10 @@ namespace Tradewatch
         public TimeSpan? LunchStart { get; set; }
         public TimeSpan? LunchEnd { get; set; }
         public TimeSpan? FridayLunchEnd { get; set; }
+        public TimeSpan? PreMarketOpen { get; set; }
+        public TimeSpan? PreMarketClose { get; set; }
+        public TimeSpan? AfterHoursOpen { get; set; }
+        public TimeSpan? AfterHoursClose { get; set; }
         public bool IsEnabled { get; set; } = true;
         public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 
@@ -59,7 +63,12 @@ namespace Tradewatch
             }
         }
 
-        public string StatusText => Status.ToString();
+        public string StatusText => Status switch
+        {
+            MarketStatus.PreMarket  => "Pre-Market",
+            MarketStatus.AfterHours => "After-Hours",
+            _ => Status.ToString()
+        };
 
         private string _countdown = "";
         public string Countdown
