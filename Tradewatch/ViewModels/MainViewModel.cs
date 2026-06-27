@@ -555,7 +555,7 @@ namespace Tradewatch.ViewModels
             new Exchange { Name = "Australian Securities Exchange (ASX)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0), Region = "Pacific" },
             new Exchange { Name = "Australian Securities Exchange (ASX 24 Futures)", TimeZone = "AUS Eastern Standard Time", Open = new TimeSpan(9,50,0), Close = new TimeSpan(16,30,0), Region = "Pacific" },
             new Exchange { Name = "New Zealand Exchange (NZX)", TimeZone = "New Zealand Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,45,0), Region = "Pacific" },
-            new Exchange { Name = "PNGX Markets (Papua New Guinea)", TimeZone = "Papua New Guinea Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0), Region = "Pacific" },
+            new Exchange { Name = "PNGX Markets (Papua New Guinea)", TimeZone = "West Pacific Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(16,0,0), Region = "Pacific" },
         };
 
         public event PropertyChangedEventHandler? PropertyChanged;

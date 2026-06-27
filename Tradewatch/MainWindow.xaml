@@ -225,7 +225,8 @@
                       Margin="10"
                       IsReadOnly="True"
                       HeadersVisibility="Column"
-                      CanUserSortColumns="True">
+                      CanUserSortColumns="True"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Width="32" CanUserResize="False" CanUserSort="False">

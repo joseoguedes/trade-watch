@@ -61,7 +61,7 @@ namespace Tradewatch
             }
         }
 
-        private MarketStatus _status;
+        private MarketStatus _status = MarketStatus.Closed;
         public MarketStatus Status
         {
             get => _status;
