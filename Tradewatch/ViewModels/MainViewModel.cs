@@ -108,6 +108,20 @@ namespace Tradewatch.ViewModels
             }
         }
 
+        private bool _isCompactMode;
+        public bool IsCompactMode
+        {
+            get => _isCompactMode;
+            set
+            {
+                if (_isCompactMode == value) return;
+                _isCompactMode = value;
+                OnPropertyChanged();
+                _settings.IsCompactMode = _isCompactMode;
+                SaveSettings(_settings);
+            }
+        }
+
         // Events for code-behind to handle UI-only concerns
         public event Action<bool>? ThemeChanged;
         public event Action<MarketStatus>? AnyOpenChanged;
@@ -121,6 +135,8 @@ namespace Tradewatch.ViewModels
         public ICommand DarkThemeCommand { get; }
         public ICommand LightThemeCommand { get; }
         public ICommand ManageExchangesCommand { get; }
+        public ICommand TogglePinCommand { get; }
+        public ICommand ToggleCompactModeCommand { get; }
 
         public MainViewModel()
         {
@@ -141,6 +157,10 @@ namespace Tradewatch.ViewModels
             _isDark = _settings.SelectedTheme != "Light";
             _alwaysOnTop = _settings.AlwaysOnTop;
             _groupByRegion = _settings.GroupByRegion;
+            _isCompactMode = _settings.IsCompactMode;
+
+            foreach (var ex in AllExchanges)
+                ex.IsPinned = _settings.PinnedExchanges.Contains(ex.Name);
 
             RefreshDisplayed();
 
@@ -149,6 +169,13 @@ namespace Tradewatch.ViewModels
             DarkThemeCommand = new RelayCommand(() => IsDark = true);
             LightThemeCommand = new RelayCommand(() => IsDark = false);
             ManageExchangesCommand = new RelayCommand(() => ManageExchangesRequested?.Invoke());
+            TogglePinCommand = new RelayCommand<Exchange>(ex =>
+            {
+                ex.IsPinned = !ex.IsPinned;
+                _settings.PinnedExchanges = AllExchanges.Where(e => e.IsPinned).Select(e => e.Name).ToList();
+                SaveSettings(_settings);
+            });
+            ToggleCompactModeCommand = new RelayCommand(() => IsCompactMode = !IsCompactMode);
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (s, e) => Tick();

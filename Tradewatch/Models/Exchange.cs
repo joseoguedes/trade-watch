@@ -18,6 +18,18 @@ namespace Tradewatch
         public TimeSpan? AfterHoursOpen { get; set; }
         public TimeSpan? AfterHoursClose { get; set; }
         public string Region { get; set; } = "";
+
+        private bool _isPinned;
+        public bool IsPinned
+        {
+            get => _isPinned;
+            set
+            {
+                if (_isPinned == value) return;
+                _isPinned = value;
+                OnPropertyChanged(nameof(IsPinned));
+            }
+        }
         public bool IsEnabled { get; set; } = true;
         public HashSet<DayOfWeek> WeekendDays { get; set; } = new HashSet<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 

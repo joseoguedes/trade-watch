@@ -134,198 +134,324 @@
                 </Style>
             </Grid.Resources>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <!-- ── Full mode ── -->
+        <Grid x:Name="FullModePanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Menu x:Name="MenuBar"
-              Grid.Row="0"
-              Background="#0E4E4A"
-              Foreground="White"
-              FontSize="14"
-              FontWeight="SemiBold"
-              Padding="5,2"
-              ItemContainerStyle="{StaticResource TopLevelMenuItemStyle}">
+            <Menu x:Name="MenuBar"
+                  Grid.Row="0"
+                  Background="#0E4E4A"
+                  Foreground="White"
+                  FontSize="14"
+                  FontWeight="SemiBold"
+                  Padding="5,2"
+                  ItemContainerStyle="{StaticResource TopLevelMenuItemStyle}">
 
-            <MenuItem Header="_File" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
-                <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
-            </MenuItem>
-
-            <MenuItem Header="_Help" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
-                <MenuItem Header="_About" Command="{Binding AboutCommand}"/>
-            </MenuItem>
-
-            <MenuItem Header="_Settings" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
-                <MenuItem Header="_Theme" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
-                    <MenuItem Header="Dark" Command="{Binding DarkThemeCommand}"/>
-                    <MenuItem Header="Light" Command="{Binding LightThemeCommand}"/>
+                <MenuItem Header="_File" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                    <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
                 </MenuItem>
-                <MenuItem Header="Exchange Pool" Command="{Binding ManageExchangesCommand}"/>
-                <MenuItem x:Name="AlwaysOnTopMenuItem"
-                          Header="Always on Top"
-                          IsCheckable="True"
-                          IsChecked="{Binding AlwaysOnTop, Mode=TwoWay}"/>
-                <MenuItem Header="Group by Region"
-                          IsCheckable="True"
-                          IsChecked="{Binding GroupByRegion, Mode=TwoWay}"/>
-            </MenuItem>
-        </Menu>
 
-    <StackPanel Grid.Row="1"
-                Orientation="Horizontal"
-                Margin="15,10,0,10">
-        <TextBlock x:Name="LocalTimeLabel"
-                   Text="Local time: "
-                   Foreground="White"
-                   FontSize="18"/>
-        <TextBlock x:Name="LocalTimeText"
-                   Text="{Binding LocalTime}"
-                   Foreground="White"
-                   FontSize="18"
-                   FontWeight="Bold"/>
-    </StackPanel>
+                <MenuItem Header="_Help" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                    <MenuItem Header="_About" Command="{Binding AboutCommand}"/>
+                </MenuItem>
 
-        <Border Grid.Row="2"
-                Background="{DynamicResource NextToOpenBarBgBrush}"
-                BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
-                BorderThickness="0,1,0,1"
-                Padding="15,7">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="Next to open: "
-                           Foreground="{DynamicResource NextToOpenBarLabelBrush}"
-                           FontSize="13"/>
-                <TextBlock Text="{Binding NextToOpenName}"
-                           Foreground="{DynamicResource NextToOpenBarNameBrush}"
-                           FontSize="13"
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding NextToOpenCountdown, StringFormat=' — {0}'}"
-                           Foreground="{DynamicResource NextToOpenBarCountdownBrush}"
-                           FontSize="13"
+                <MenuItem Header="_Settings" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                    <MenuItem Header="_Theme" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                        <MenuItem Header="Dark" Command="{Binding DarkThemeCommand}"/>
+                        <MenuItem Header="Light" Command="{Binding LightThemeCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Exchange Pool" Command="{Binding ManageExchangesCommand}"/>
+                    <MenuItem x:Name="AlwaysOnTopMenuItem"
+                              Header="Always on Top"
+                              IsCheckable="True"
+                              IsChecked="{Binding AlwaysOnTop, Mode=TwoWay}"/>
+                    <MenuItem Header="Group by Region"
+                              IsCheckable="True"
+                              IsChecked="{Binding GroupByRegion, Mode=TwoWay}"/>
+                    <MenuItem Header="Compact Mode"
+                              IsCheckable="True"
+                              IsChecked="{Binding IsCompactMode, Mode=TwoWay}"/>
+                </MenuItem>
+            </Menu>
+
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        Margin="15,10,0,10">
+                <TextBlock x:Name="LocalTimeLabel"
+                           Text="Local time: "
+                           Foreground="White"
+                           FontSize="18"/>
+                <TextBlock x:Name="LocalTimeText"
+                           Text="{Binding LocalTime}"
+                           Foreground="White"
+                           FontSize="18"
                            FontWeight="Bold"/>
             </StackPanel>
-        </Border>
 
-        <DataGrid x:Name="ExchangeGrid"
-                  Grid.Row="3"
-                  ItemsSource="{Binding DisplayedExchanges}"
-                  AutoGenerateColumns="False"
-                  Background="Black"
-                  Foreground="White"
-                  BorderBrush="Gray"
-                  FontSize="14"
-                  Margin="10"
-                  IsReadOnly="True"
-                  HeadersVisibility="Column"
-                  CanUserSortColumns="True">
+            <Border Grid.Row="2"
+                    Background="{DynamicResource NextToOpenBarBgBrush}"
+                    BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
+                    BorderThickness="0,1,0,1"
+                    Padding="15,7">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Next to open: "
+                               Foreground="{DynamicResource NextToOpenBarLabelBrush}"
+                               FontSize="13"/>
+                    <TextBlock Text="{Binding NextToOpenName}"
+                               Foreground="{DynamicResource NextToOpenBarNameBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding NextToOpenCountdown, StringFormat=' — {0}'}"
+                               Foreground="{DynamicResource NextToOpenBarCountdownBrush}"
+                               FontSize="13"
+                               FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Exchange" Binding="{Binding Name}" Width="*"/>
-                <DataGridTemplateColumn Header="Status" Width="130" SortMemberPath="Status">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Ellipse Width="12" Height="12" Fill="{Binding Status, Converter={StaticResource MarketStatusToColorConverter}}" Margin="0,0,6,0"/>
-                                <TextBlock Text="{Binding StatusText}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGrid}}" FontWeight="Bold"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Countdown" Binding="{Binding Countdown}" Width="150">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Local Time" Binding="{Binding LocalTime}" Width="100">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Open Hours" Binding="{Binding OpenCloseHours}" Width="120">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
+            <DataGrid x:Name="ExchangeGrid"
+                      Grid.Row="3"
+                      ItemsSource="{Binding DisplayedExchanges}"
+                      AutoGenerateColumns="False"
+                      Background="Black"
+                      Foreground="White"
+                      BorderBrush="Gray"
+                      FontSize="14"
+                      Margin="10"
+                      IsReadOnly="True"
+                      HeadersVisibility="Column"
+                      CanUserSortColumns="True">
 
-            <DataGrid.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.ContainerStyle>
-                        <Style TargetType="{x:Type GroupItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <StackPanel>
-                                            <ToggleButton x:Name="Toggle" IsChecked="True" Focusable="False">
-                                                <ToggleButton.Template>
-                                                    <ControlTemplate TargetType="ToggleButton">
-                                                        <Border Background="{DynamicResource GroupHeaderBgBrush}"
-                                                                BorderBrush="{DynamicResource GroupHeaderBorderBrush}"
-                                                                BorderThickness="0,0,0,1"
-                                                                Padding="12,7"
-                                                                Cursor="Hand">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Path x:Name="Arrow"
-                                                                      Data="M 0 0 L 8 0 L 4 7 Z"
-                                                                      Fill="{DynamicResource GroupHeaderFgBrush}"
-                                                                      Width="8" Height="7"
-                                                                      Stretch="Fill"
-                                                                      Margin="0,0,10,0"
-                                                                      VerticalAlignment="Center"/>
-                                                                <TextBlock Text="{Binding Name}"
-                                                                           Foreground="{DynamicResource GroupHeaderFgBrush}"
-                                                                           FontWeight="SemiBold"
-                                                                           FontSize="13"
-                                                                           VerticalAlignment="Center"/>
-                                                                <TextBlock Text="{Binding ItemCount, StringFormat=' ({0})'}"
-                                                                           Foreground="{DynamicResource GroupHeaderFgBrush}"
-                                                                           FontSize="12"
-                                                                           Opacity="0.6"
-                                                                           VerticalAlignment="Center"/>
-                                                            </StackPanel>
-                                                        </Border>
-                                                        <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsChecked" Value="False">
-                                                                <Setter TargetName="Arrow" Property="Data" Value="M 0 0 L 7 4 L 0 8 Z"/>
-                                                            </Trigger>
-                                                        </ControlTemplate.Triggers>
-                                                    </ControlTemplate>
-                                                </ToggleButton.Template>
-                                            </ToggleButton>
-                                            <ItemsPresenter x:Name="Items"/>
-                                        </StackPanel>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger SourceName="Toggle" Property="IsChecked" Value="False">
-                                                <Setter TargetName="Items" Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </GroupStyle.ContainerStyle>
-                </GroupStyle>
-            </DataGrid.GroupStyle>
-        </DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="32" CanUserResize="False" CanUserSort="False">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="★" FontSize="12" HorizontalAlignment="Center" ToolTip="Pin to compact view"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="PinBtn"
+                                        Content="☆"
+                                        FontSize="14"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        Foreground="Gray"
+                                        HorizontalAlignment="Center"
+                                        Command="{Binding DataContext.TogglePinCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                        <Setter TargetName="PinBtn" Property="Content" Value="★"/>
+                                        <Setter TargetName="PinBtn" Property="Foreground" Value="Gold"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-        <Border Grid.Row="4"
-                Background="{DynamicResource StatusBarBgBrush}"
-                BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
-                BorderThickness="0,1,0,0"
-                Padding="15,5">
-            <TextBlock Text="{Binding MarketsOpenSummary}"
-                       Foreground="{DynamicResource StatusBarFgBrush}"
-                       FontSize="12"/>
-        </Border>
+                    <DataGridTextColumn Header="Exchange" Binding="{Binding Name}" Width="*"/>
+                    <DataGridTemplateColumn Header="Status" Width="130" SortMemberPath="Status">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Ellipse Width="12" Height="12" Fill="{Binding Status, Converter={StaticResource MarketStatusToColorConverter}}" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding StatusText}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGrid}}" FontWeight="Bold"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Countdown" Binding="{Binding Countdown}" Width="150">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Local Time" Binding="{Binding LocalTime}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Open Hours" Binding="{Binding OpenCloseHours}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+
+                <DataGrid.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.ContainerStyle>
+                            <Style TargetType="{x:Type GroupItem}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                            <StackPanel>
+                                                <ToggleButton x:Name="Toggle" IsChecked="True" Focusable="False">
+                                                    <ToggleButton.Template>
+                                                        <ControlTemplate TargetType="ToggleButton">
+                                                            <Border Background="{DynamicResource GroupHeaderBgBrush}"
+                                                                    BorderBrush="{DynamicResource GroupHeaderBorderBrush}"
+                                                                    BorderThickness="0,0,0,1"
+                                                                    Padding="12,7"
+                                                                    Cursor="Hand">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Path x:Name="Arrow"
+                                                                          Data="M 0 0 L 8 0 L 4 7 Z"
+                                                                          Fill="{DynamicResource GroupHeaderFgBrush}"
+                                                                          Width="8" Height="7"
+                                                                          Stretch="Fill"
+                                                                          Margin="0,0,10,0"
+                                                                          VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="{Binding Name}"
+                                                                               Foreground="{DynamicResource GroupHeaderFgBrush}"
+                                                                               FontWeight="SemiBold"
+                                                                               FontSize="13"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="{Binding ItemCount, StringFormat=' ({0})'}"
+                                                                               Foreground="{DynamicResource GroupHeaderFgBrush}"
+                                                                               FontSize="12"
+                                                                               Opacity="0.6"
+                                                                               VerticalAlignment="Center"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsChecked" Value="False">
+                                                                    <Setter TargetName="Arrow" Property="Data" Value="M 0 0 L 7 4 L 0 8 Z"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </ToggleButton.Template>
+                                                </ToggleButton>
+                                                <ItemsPresenter x:Name="Items"/>
+                                            </StackPanel>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger SourceName="Toggle" Property="IsChecked" Value="False">
+                                                    <Setter TargetName="Items" Property="Visibility" Value="Collapsed"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </GroupStyle.ContainerStyle>
+                    </GroupStyle>
+                </DataGrid.GroupStyle>
+            </DataGrid>
+
+            <Border Grid.Row="4"
+                    Background="{DynamicResource StatusBarBgBrush}"
+                    BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="15,5">
+                <TextBlock Text="{Binding MarketsOpenSummary}"
+                           Foreground="{DynamicResource StatusBarFgBrush}"
+                           FontSize="12"/>
+            </Border>
+        </Grid>
+
+        <!-- ── Compact mode ── -->
+        <Grid x:Name="CompactPanel" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" x:Name="CompactHeader" Padding="12,8">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Content="⊞"
+                            Command="{Binding ToggleCompactModeCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="White"
+                            FontSize="15"
+                            Cursor="Hand"
+                            Padding="4,0"
+                            ToolTip="Exit compact mode"/>
+                    <TextBlock Text="Tradewatch"
+                               Foreground="White"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+
+            <ListBox Grid.Row="1"
+                     x:Name="CompactList"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     Focusable="False">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="12,7"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{DynamicResource GroupHeaderBorderBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Ellipse Grid.Column="0"
+                                     Width="10" Height="10"
+                                     Fill="{Binding Status, Converter={StaticResource MarketStatusToColorConverter}}"
+                                     VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Name}"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,8,0"
+                                       FontSize="13"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding StatusText}"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding Status, Converter={StaticResource MarketStatusToColorConverter}}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Grid.Row="2"
+                    x:Name="CompactFooter"
+                    BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="12,5">
+                <TextBlock x:Name="CompactFooterText"
+                           Text="{Binding MarketsOpenSummary}"
+                           FontSize="11"/>
+            </Border>
+        </Grid>
 
     </Grid>
 </Window>

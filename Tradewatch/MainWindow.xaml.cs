@@ -24,6 +24,10 @@ namespace Tradewatch
         private System.Drawing.Icon _iconOpen;
         private System.Drawing.Icon _iconClosed;
         private System.Drawing.Icon _iconHoliday;
+        private System.Windows.Data.ListCollectionView _pinnedView = null!;
+        private double _savedWidth = 700;
+        private double _savedHeight = 500;
+        private bool _savedTopmost;
 
         public MainWindow()
         {
@@ -33,12 +37,20 @@ namespace Tradewatch
             DataContext = _vm;
 
             ApplyGrouping();
+            SetupCompactView();
             _vm.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(MainViewModel.DisplayedExchanges) ||
                     e.PropertyName == nameof(MainViewModel.GroupByRegion))
                     ApplyGrouping();
+                if (e.PropertyName == nameof(MainViewModel.DisplayedExchanges))
+                    SetupCompactView();
+                if (e.PropertyName == nameof(MainViewModel.IsCompactMode))
+                    SwitchMode();
             };
+
+            if (_vm.IsCompactMode)
+                Loaded += (s, e) => SwitchMode();
 
             var s = _vm.Settings;
             if (s.WindowLeft >= 0) { Left = s.WindowLeft; Top = s.WindowTop; }
@@ -278,8 +290,22 @@ namespace Tradewatch
             centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderBrushProperty, separator));
             centeredHeaderStyle.Setters.Add(new Setter(DataGridColumnHeader.BorderThicknessProperty, new Thickness(0, 0, 1, 0)));
 
-            foreach (var col in ExchangeGrid.Columns.Skip(1))
+            foreach (var col in ExchangeGrid.Columns.Where((_, i) => i != 1))
                 col.HeaderStyle = centeredHeaderStyle;
+
+            // Compact panel theming
+            var compactHeaderBg = isDark
+                ? new SolidColorBrush(Color.FromRgb(0x0E, 0x4E, 0x4A))
+                : new SolidColorBrush(Color.FromRgb(0x5B, 0x8D, 0xB8));
+            CompactHeader.Background = compactHeaderBg;
+            CompactList.Foreground = isDark ? Brushes.White : Brushes.Black;
+            CompactList.Background = isDark ? Brushes.Black : Brushes.White;
+            CompactFooter.Background = isDark
+                ? new SolidColorBrush(Color.FromRgb(0x0A, 0x1E, 0x1C))
+                : new SolidColorBrush(Color.FromRgb(0xE8, 0xF4, 0xF0));
+            CompactFooterText.Foreground = isDark
+                ? new SolidColorBrush(Color.FromRgb(0x77, 0x88, 0x88))
+                : new SolidColorBrush(Color.FromRgb(0x60, 0x70, 0x70));
 
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, new Action(() =>
             {
@@ -293,6 +319,49 @@ namespace Tradewatch
                 Grid.SetRow(vScrollBar, 1);
                 Grid.SetRowSpan(vScrollBar, 1);
             }));
+        }
+
+        private void SetupCompactView()
+        {
+            _pinnedView = new System.Windows.Data.ListCollectionView(_vm.DisplayedExchanges);
+            _pinnedView.Filter = o => o is Exchange ex && ex.IsPinned;
+            CompactList.ItemsSource = _pinnedView;
+
+            foreach (var ex in _vm.AllExchanges)
+                ex.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(Exchange.IsPinned))
+                        _pinnedView.Refresh();
+                };
+        }
+
+        private void SwitchMode()
+        {
+            if (_vm.IsCompactMode)
+            {
+                _savedWidth = Width;
+                _savedHeight = Height;
+                _savedTopmost = Topmost;
+
+                FullModePanel.Visibility = Visibility.Collapsed;
+                CompactPanel.Visibility = Visibility.Visible;
+
+                int pinnedCount = _vm.AllExchanges.Count(e => e.IsPinned && e.IsEnabled);
+                Width = 300;
+                Height = Math.Max(160, Math.Min(480, 50 + pinnedCount * 40 + 36));
+                ResizeMode = ResizeMode.CanResize;
+                Topmost = true;
+            }
+            else
+            {
+                FullModePanel.Visibility = Visibility.Visible;
+                CompactPanel.Visibility = Visibility.Collapsed;
+
+                Width = _savedWidth;
+                Height = _savedHeight;
+                Topmost = _savedTopmost;
+                ResizeMode = ResizeMode.CanResize;
+            }
         }
 
         private void ApplyGrouping()
