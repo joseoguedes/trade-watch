@@ -137,7 +137,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Menu x:Name="MenuBar"
@@ -184,8 +186,28 @@
                    FontWeight="Bold"/>
     </StackPanel>
 
+        <Border Grid.Row="2"
+                Background="{DynamicResource NextToOpenBarBgBrush}"
+                BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
+                BorderThickness="0,1,0,1"
+                Padding="15,7">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Next to open: "
+                           Foreground="{DynamicResource NextToOpenBarLabelBrush}"
+                           FontSize="13"/>
+                <TextBlock Text="{Binding NextToOpenName}"
+                           Foreground="{DynamicResource NextToOpenBarNameBrush}"
+                           FontSize="13"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding NextToOpenCountdown, StringFormat=' — {0}'}"
+                           Foreground="White"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+
         <DataGrid x:Name="ExchangeGrid"
-                  Grid.Row="2"
+                  Grid.Row="3"
                   ItemsSource="{Binding DisplayedExchanges}"
                   AutoGenerateColumns="False"
                   Background="Black"
@@ -232,5 +254,16 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+        <Border Grid.Row="4"
+                Background="{DynamicResource StatusBarBgBrush}"
+                BorderBrush="{DynamicResource NextToOpenBarBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="15,5">
+            <TextBlock Text="{Binding MarketsOpenSummary}"
+                       Foreground="{DynamicResource StatusBarFgBrush}"
+                       FontSize="12"/>
+        </Border>
+
     </Grid>
 </Window>

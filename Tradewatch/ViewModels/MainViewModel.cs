@@ -59,6 +59,27 @@ namespace Tradewatch.ViewModels
             }
         }
 
+        private string _marketsOpenSummary = "";
+        public string MarketsOpenSummary
+        {
+            get => _marketsOpenSummary;
+            private set { _marketsOpenSummary = value; OnPropertyChanged(); }
+        }
+
+        private string _nextToOpenName = "";
+        public string NextToOpenName
+        {
+            get => _nextToOpenName;
+            private set { _nextToOpenName = value; OnPropertyChanged(); }
+        }
+
+        private string _nextToOpenCountdown = "";
+        public string NextToOpenCountdown
+        {
+            get => _nextToOpenCountdown;
+            private set { _nextToOpenCountdown = value; OnPropertyChanged(); }
+        }
+
         private bool _alwaysOnTop;
         public bool AlwaysOnTop
         {
@@ -181,7 +202,52 @@ namespace Tradewatch.ViewModels
             else
                 marketState = MarketStatus.Closed;
             AnyOpenChanged?.Invoke(marketState);
+            UpdateNextToOpen(nowUtc);
+
+            var enabled = AllExchanges.Where(e => e.IsEnabled).ToList();
+            MarketsOpenSummary = $"{enabled.Count(e => e.Status == MarketStatus.Open)} of {enabled.Count} markets open";
+
             NotifyStatusChanges();
+        }
+
+        private void UpdateNextToOpen(DateTime nowUtc)
+        {
+            Exchange? best = null;
+            TimeSpan bestSpan = TimeSpan.MaxValue;
+
+            foreach (var e in AllExchanges.Where(ex => ex.IsEnabled && ex.Status != MarketStatus.Open))
+            {
+                if (!_tzCache.TryGetValue(e.TimeZone, out var tz)) continue;
+                var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+                _holidays.TryGetValue(e.Name, out var exchangeHolidays);
+
+                var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
+                    ? e.FridayLunchEnd : e.LunchEnd;
+                bool inLunch = e.LunchStart.HasValue && effectiveLunchEnd.HasValue
+                            && localTime.TimeOfDay >= e.LunchStart.Value
+                            && localTime.TimeOfDay < effectiveLunchEnd.Value;
+
+                TimeSpan span = inLunch && effectiveLunchEnd.HasValue
+                    ? effectiveLunchEnd.Value - localTime.TimeOfDay
+                    : GetNextOpen(e, localTime, exchangeHolidays) - localTime;
+
+                if (span >= TimeSpan.Zero && span < bestSpan)
+                {
+                    bestSpan = span;
+                    best = e;
+                }
+            }
+
+            if (best != null)
+            {
+                NextToOpenName = best.Name;
+                NextToOpenCountdown = FormatCountdown(bestSpan);
+            }
+            else
+            {
+                NextToOpenName = "All markets open";
+                NextToOpenCountdown = "";
+            }
         }
 
         private void NotifyStatusChanges()
