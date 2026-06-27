@@ -16,10 +16,11 @@
     <SolidColorBrush x:Key="StatusBarFgBrush" Color="#607070" />
 
     <!-- NEXT TO OPEN BAR -->
-    <SolidColorBrush x:Key="NextToOpenBarBgBrush" Color="#E8F4F0" />
-    <SolidColorBrush x:Key="NextToOpenBarBorderBrush" Color="#B0D4CC" />
-    <SolidColorBrush x:Key="NextToOpenBarLabelBrush" Color="#607070" />
-    <SolidColorBrush x:Key="NextToOpenBarNameBrush" Color="#1A7A5A" />
+    <SolidColorBrush x:Key="NextToOpenBarBgBrush" Color="#EEF4FB" />
+    <SolidColorBrush x:Key="NextToOpenBarBorderBrush" Color="#BDD0E8" />
+    <SolidColorBrush x:Key="NextToOpenBarLabelBrush" Color="#5A6A7A" />
+    <SolidColorBrush x:Key="NextToOpenBarNameBrush" Color="#1A5A90" />
+    <SolidColorBrush x:Key="NextToOpenBarCountdownBrush" Color="#1A2A3A" />
 
     <!-- LIGHT THEME SCROLLBAR BRUSHES -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#E2E2E2" />

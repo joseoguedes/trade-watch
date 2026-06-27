@@ -20,6 +20,7 @@
     <SolidColorBrush x:Key="NextToOpenBarBorderBrush" Color="#1A4A44" />
     <SolidColorBrush x:Key="NextToOpenBarLabelBrush" Color="#778888" />
     <SolidColorBrush x:Key="NextToOpenBarNameBrush" Color="#0aff9d" />
+    <SolidColorBrush x:Key="NextToOpenBarCountdownBrush" Color="White" />
 
     <!-- DARK THEME SCROLLBAR BRUSHES -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#333333" />

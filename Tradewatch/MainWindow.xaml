@@ -200,7 +200,7 @@
                            FontSize="13"
                            FontWeight="SemiBold"/>
                 <TextBlock Text="{Binding NextToOpenCountdown, StringFormat=' — {0}'}"
-                           Foreground="White"
+                           Foreground="{DynamicResource NextToOpenBarCountdownBrush}"
                            FontSize="13"
                            FontWeight="Bold"/>
             </StackPanel>
