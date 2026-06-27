@@ -23,11 +23,11 @@
     <SolidColorBrush x:Key="NextToOpenBarCountdownBrush" Color="#1A2A3A" />
 
     <!-- LIGHT THEME SCROLLBAR BRUSHES -->
-    <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#E2E2E2" />
-    <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#A0A0A0" />
-    <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#808080" />
-    <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#686868" />
-    <SolidColorBrush x:Key="ScrollBarButtonBrush" Color="#D0D0D0" />
-    <SolidColorBrush x:Key="ScrollBarArrowBrush" Color="#555555" />
+    <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#D8EAFA" />
+    <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#7FB4D8" />
+    <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#5A9AC4" />
+    <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#3D7EA8" />
+    <SolidColorBrush x:Key="ScrollBarButtonBrush" Color="#C8DFF0" />
+    <SolidColorBrush x:Key="ScrollBarArrowBrush" Color="#2A5A7A" />
 
 </ResourceDictionary>
