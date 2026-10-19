@@ -10,6 +10,7 @@ namespace Tradewatch
         public string TimeZone { get; set; } = null!;
         public TimeSpan Open { get; set; }
         public TimeSpan Close { get; set; }
+        public TimeSpan? FridayClose { get; set; }
         public TimeSpan? LunchStart { get; set; }
         public TimeSpan? LunchEnd { get; set; }
         public TimeSpan? FridayLunchEnd { get; set; }

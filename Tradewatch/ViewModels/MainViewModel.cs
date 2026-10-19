@@ -220,6 +220,7 @@ namespace Tradewatch.ViewModels
                               && exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd"));
 
                 bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
+                var close = CloseOn(e, localTime.DayOfWeek);
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
                 bool inLunch = !isHoliday && !isWeekend
@@ -227,7 +228,7 @@ namespace Tradewatch.ViewModels
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < effectiveLunchEnd.Value;
                 bool isOpen = !isHoliday
-                            && localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
+                            && localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < close
                             && !isWeekend
                             && !inLunch;
                 bool isPreMarket = !isHoliday && !isOpen && !isWeekend
@@ -240,7 +241,7 @@ namespace Tradewatch.ViewModels
                             && localTime.TimeOfDay < e.AfterHoursClose.Value;
 
                 e.LocalTime = localTime.ToString("HH:mm");
-                e.OpenCloseHours = $"{e.Open:hh\\:mm} - {e.Close:hh\\:mm}";
+                e.OpenCloseHours = $"{e.Open:hh\\:mm} - {close:hh\\:mm}";
                 e.Status = isOpen       ? MarketStatus.Open
                          : isPreMarket  ? MarketStatus.PreMarket
                          : isAfterHours ? MarketStatus.AfterHours
@@ -339,7 +340,7 @@ namespace Tradewatch.ViewModels
         private static string ComputeCountdown(Exchange e, DateTime localTime, MarketStatus status, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string>? holidays)
         {
             if (status == MarketStatus.Open)
-                return "Closes in " + FormatCountdown(e.Close - localTime.TimeOfDay);
+                return "Closes in " + FormatCountdown(CloseOn(e, localTime.DayOfWeek) - localTime.TimeOfDay);
 
             if (status == MarketStatus.AfterHours && e.AfterHoursClose.HasValue)
                 return "Closes in " + FormatCountdown(e.AfterHoursClose.Value - localTime.TimeOfDay);
@@ -349,6 +350,9 @@ namespace Tradewatch.ViewModels
 
             return "Opens in " + FormatCountdown(GetNextOpen(e, localTime, holidays) - localTime);
         }
+
+        private static TimeSpan CloseOn(Exchange e, DayOfWeek day)
+            => day == DayOfWeek.Friday && e.FridayClose.HasValue ? e.FridayClose.Value : e.Close;
 
         private static DateTime GetNextOpen(Exchange e, DateTime localTime, HashSet<string>? holidays = null)
         {
@@ -438,13 +442,13 @@ namespace Tradewatch.ViewModels
             new Exchange { Name = "NASDAQ", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), PreMarketOpen = new TimeSpan(4,0,0), PreMarketClose = new TimeSpan(9,30,0), AfterHoursOpen = new TimeSpan(16,0,0), AfterHoursClose = new TimeSpan(20,0,0), Region = "North America" },
             new Exchange { Name = "Toronto Stock Exchange (TSX)", TimeZone = "Eastern Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), Region = "North America" },
             new Exchange { Name = "Bolsa Mexicana de Valores (BMV)", TimeZone = "Central Standard Time (Mexico)", Open = new TimeSpan(8,30,0), Close = new TimeSpan(15,0,0), Region = "North America" },
-            new Exchange { Name = "Bermuda Stock Exchange (BSX)", TimeZone = "Atlantic Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0), Region = "North America" },
+            new Exchange { Name = "Bermuda Stock Exchange (BSX)", TimeZone = "Atlantic Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,30,0), Region = "North America" },
 
             // ── Latin America ──────────────────────────────────────────────────────
             new Exchange { Name = "São Paulo Stock Exchange (B3)", TimeZone = "E. South America Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,0,0), Region = "Latin America" },
             new Exchange { Name = "Buenos Aires Stock Exchange (BCBA)", TimeZone = "Argentina Standard Time", Open = new TimeSpan(11,0,0), Close = new TimeSpan(17,0,0), Region = "Latin America" },
-            new Exchange { Name = "Santiago Stock Exchange (BCS)", TimeZone = "Pacific SA Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0), Region = "Latin America" },
-            new Exchange { Name = "Bolsa de Valores de Colombia (BVC)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), Region = "Latin America" },
+            new Exchange { Name = "Santiago Stock Exchange (BCS)", TimeZone = "Pacific SA Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,0,0), Region = "Latin America" },
+            new Exchange { Name = "Bolsa de Valores de Colombia (BVC)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(16,0,0), Region = "Latin America" },
             new Exchange { Name = "Bolsa de Valores de Lima (BVL)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), Region = "Latin America" },
             new Exchange { Name = "Jamaica Stock Exchange (JSE)", TimeZone = "SA Pacific Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(14,0,0), Region = "Latin America" },
             new Exchange { Name = "Trinidad and Tobago Stock Exchange (TTSE)", TimeZone = "SA Western Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(14,0,0), Region = "Latin America" },
@@ -465,7 +469,7 @@ namespace Tradewatch.ViewModels
             new Exchange { Name = "Vienna Stock Exchange (WBAG)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0), Region = "Europe" },
             new Exchange { Name = "Oslo Stock Exchange (OSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,25,0), Region = "Europe" },
             new Exchange { Name = "Stockholm Stock Exchange (OMX)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,30,0), Region = "Europe" },
-            new Exchange { Name = "Luxembourg Stock Exchange (LuxSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,35,0), Region = "Europe" },
+            new Exchange { Name = "Luxembourg Stock Exchange (LuxSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,40,0), Region = "Europe" },
             new Exchange { Name = "Malta Stock Exchange", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0), Region = "Europe" },
             new Exchange { Name = "Nasdaq Iceland", TimeZone = "Greenwich Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(15,30,0), Region = "Europe" },
 
@@ -478,12 +482,12 @@ namespace Tradewatch.ViewModels
             // ── Eastern / Southern Europe ──────────────────────────────────────────
             new Exchange { Name = "Athens Stock Exchange (ATHEX)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,20,0), Region = "Europe" },
             new Exchange { Name = "Warsaw Stock Exchange (GPW)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,5,0), Region = "Europe" },
-            new Exchange { Name = "Prague Stock Exchange (PSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,30,0), Region = "Europe" },
+            new Exchange { Name = "Prague Stock Exchange (PSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,20,0), Region = "Europe" },
             new Exchange { Name = "Budapest Stock Exchange (BSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0), Region = "Europe" },
-            new Exchange { Name = "Bucharest Stock Exchange (BVB)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,50,0), Region = "Europe" },
-            new Exchange { Name = "Zagreb Stock Exchange (ZSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0), Region = "Europe" },
+            new Exchange { Name = "Bucharest Stock Exchange (BVB)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,45,0), Region = "Europe" },
+            new Exchange { Name = "Zagreb Stock Exchange (ZSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(16,0,0), Region = "Europe" },
             new Exchange { Name = "Sofia Stock Exchange", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(17,30,0), Region = "Europe" },
-            new Exchange { Name = "Cyprus Stock Exchange (CSE)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,0,0), Region = "Europe" },
+            new Exchange { Name = "Cyprus Stock Exchange (CSE)", TimeZone = "GTB Standard Time", Open = new TimeSpan(10,30,0), Close = new TimeSpan(17,0,0), Region = "Europe" },
             new Exchange { Name = "Borsa Istanbul (BIST)", TimeZone = "Turkey Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,0,0), Region = "Europe" },
             new Exchange { Name = "Moscow Exchange (MOEX)", TimeZone = "Russian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(18,50,0), Region = "Europe" },
             new Exchange { Name = "Nasdaq Copenhagen (XCSE)", TimeZone = "W. Europe Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(17,0,0), Region = "Europe" },
@@ -492,7 +496,6 @@ namespace Tradewatch.ViewModels
 
             // ── Middle East — Sun–Thu ──────────────────────────────────────────────
             new Exchange { Name = "Saudi Stock Exchange (Tadawul)", TimeZone = "Arab Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(15,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
-            new Exchange { Name = "Tel Aviv Stock Exchange (TASE)", TimeZone = "Israel Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(17,30,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
             new Exchange { Name = "Qatar Stock Exchange (QSE)", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(13,15,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
             new Exchange { Name = "Kuwait Boursa", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,0,0), Close = new TimeSpan(13,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
             new Exchange { Name = "Bahrain Bourse (BHB)", TimeZone = "Arab Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(13,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
@@ -503,6 +506,7 @@ namespace Tradewatch.ViewModels
             new Exchange { Name = "Iraq Stock Exchange (ISX)", TimeZone = "Arab Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(13,0,0), WeekendDays = new HashSet<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Saturday }, Region = "Middle East" },
 
             // ── Middle East — Mon–Fri (UAE changed work week Jan 2022) ─────────────
+            new Exchange { Name = "Tel Aviv Stock Exchange (TASE)", TimeZone = "Israel Standard Time", Open = new TimeSpan(9,59,0), Close = new TimeSpan(17,15,0), FridayClose = new TimeSpan(13,50,0), Region = "Middle East" },
             new Exchange { Name = "Dubai Financial Market (DFM)", TimeZone = "Arabian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,50,0), Region = "Middle East" },
             new Exchange { Name = "Abu Dhabi Securities Exchange (ADX)", TimeZone = "Arabian Standard Time", Open = new TimeSpan(10,0,0), Close = new TimeSpan(14,30,0), Region = "Middle East" },
             new Exchange { Name = "Beirut Stock Exchange (BSE)", TimeZone = "Middle East Standard Time", Open = new TimeSpan(9,30,0), Close = new TimeSpan(12,30,0), Region = "Middle East" },
