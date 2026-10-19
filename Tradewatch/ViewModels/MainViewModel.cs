@@ -23,7 +23,8 @@ namespace Tradewatch.ViewModels
             "Tradewatch", "error.log");
         private readonly DispatcherTimer _timer;
         private readonly Dictionary<string, MarketStatus?> _lastKnownStatus = new();
-        private Dictionary<string, HashSet<string>> _holidays = new();
+        private readonly Dictionary<string, Dictionary<string, string>> _holidays = new();
+        private readonly Dictionary<string, Dictionary<string, TimeSpan>> _earlyCloses = new();
         private readonly Dictionary<string, TimeZoneInfo> _tzCache = new();
         private AppSettings _settings;
 
@@ -215,12 +216,18 @@ namespace Tradewatch.ViewModels
                 if (!_tzCache.TryGetValue(e.TimeZone, out var tz)) continue;
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
 
+                var dateKey = localTime.Date.ToString("yyyy-MM-dd");
                 _holidays.TryGetValue(e.Name, out var exchangeHolidays);
-                bool isHoliday = exchangeHolidays != null
-                              && exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd"));
+                string? holidayName = null;
+                bool isHoliday = exchangeHolidays != null && exchangeHolidays.TryGetValue(dateKey, out holidayName);
 
                 bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
-                var close = CloseOn(e, localTime.DayOfWeek);
+                var normalClose = CloseOn(e, localTime.DayOfWeek);
+                TimeSpan? earlyClose = _earlyCloses.TryGetValue(e.Name, out var early)
+                                    && early.TryGetValue(dateKey, out var ec) && ec < normalClose ? ec : null;
+                var close = earlyClose ?? normalClose;
+                // On early-close days after-hours trading starts at the early close (e.g. NYSE 13:00).
+                var afterHoursOpen = earlyClose.HasValue && e.AfterHoursOpen.HasValue ? earlyClose : e.AfterHoursOpen;
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
                 bool inLunch = !isHoliday && !isWeekend
@@ -236,18 +243,22 @@ namespace Tradewatch.ViewModels
                             && localTime.TimeOfDay >= e.PreMarketOpen.Value
                             && localTime.TimeOfDay < e.PreMarketClose.Value;
                 bool isAfterHours = !isHoliday && !isOpen && !isWeekend
-                            && e.AfterHoursOpen.HasValue && e.AfterHoursClose.HasValue
-                            && localTime.TimeOfDay >= e.AfterHoursOpen.Value
+                            && afterHoursOpen.HasValue && e.AfterHoursClose.HasValue
+                            && localTime.TimeOfDay >= afterHoursOpen.Value
                             && localTime.TimeOfDay < e.AfterHoursClose.Value;
 
                 e.LocalTime = localTime.ToString("HH:mm");
                 e.OpenCloseHours = $"{e.Open:hh\\:mm} - {close:hh\\:mm}";
+                e.HolidayName = isHoliday ? holidayName : null;
+                e.EarlyCloseNote = earlyClose.HasValue && !isHoliday && !isWeekend
+                    ? $"Early close today at {close:hh\\:mm} (normally {normalClose:hh\\:mm})"
+                    : null;
                 e.Status = isOpen       ? MarketStatus.Open
                          : isPreMarket  ? MarketStatus.PreMarket
                          : isAfterHours ? MarketStatus.AfterHours
                          : isHoliday    ? MarketStatus.Holiday
                                         : MarketStatus.Closed;
-                e.Countdown = ComputeCountdown(e, localTime, e.Status, inLunch, effectiveLunchEnd, exchangeHolidays);
+                e.Countdown = ComputeCountdown(e, localTime, e.Status, close, inLunch, effectiveLunchEnd, exchangeHolidays);
             }
 
             MarketStatus marketState;
@@ -280,7 +291,7 @@ namespace Tradewatch.ViewModels
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
                 bool isTradingDay = !e.WeekendDays.Contains(localTime.DayOfWeek)
-                                 && (exchangeHolidays == null || !exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd")));
+                                 && (exchangeHolidays == null || !exchangeHolidays.ContainsKey(localTime.Date.ToString("yyyy-MM-dd")));
                 bool inLunch = isTradingDay
                             && e.LunchStart.HasValue && effectiveLunchEnd.HasValue
                             && localTime.TimeOfDay >= e.LunchStart.Value
@@ -337,10 +348,10 @@ namespace Tradewatch.ViewModels
                 StatusChanged?.Invoke(nowOpen, nowClosed);
         }
 
-        private static string ComputeCountdown(Exchange e, DateTime localTime, MarketStatus status, bool inLunch, TimeSpan? effectiveLunchEnd, HashSet<string>? holidays)
+        private static string ComputeCountdown(Exchange e, DateTime localTime, MarketStatus status, TimeSpan close, bool inLunch, TimeSpan? effectiveLunchEnd, Dictionary<string, string>? holidays)
         {
             if (status == MarketStatus.Open)
-                return "Closes in " + FormatCountdown(CloseOn(e, localTime.DayOfWeek) - localTime.TimeOfDay);
+                return "Closes in " + FormatCountdown(close - localTime.TimeOfDay);
 
             if (status == MarketStatus.AfterHours && e.AfterHoursClose.HasValue)
                 return "Closes in " + FormatCountdown(e.AfterHoursClose.Value - localTime.TimeOfDay);
@@ -354,20 +365,20 @@ namespace Tradewatch.ViewModels
         private static TimeSpan CloseOn(Exchange e, DayOfWeek day)
             => day == DayOfWeek.Friday && e.FridayClose.HasValue ? e.FridayClose.Value : e.Close;
 
-        private static DateTime GetNextOpen(Exchange e, DateTime localTime, HashSet<string>? holidays = null)
+        private static DateTime GetNextOpen(Exchange e, DateTime localTime, Dictionary<string, string>? holidays = null)
         {
             var today = localTime.Date;
 
             if (!e.WeekendDays.Contains(today.DayOfWeek)
                 && localTime.TimeOfDay < e.Open
-                && (holidays == null || !holidays.Contains(today.ToString("yyyy-MM-dd"))))
+                && (holidays == null || !holidays.ContainsKey(today.ToString("yyyy-MM-dd"))))
                 return today + e.Open;
 
             for (int i = 1; i <= 14; i++)
             {
                 var next = today.AddDays(i);
                 if (!e.WeekendDays.Contains(next.DayOfWeek)
-                    && (holidays == null || !holidays.Contains(next.ToString("yyyy-MM-dd"))))
+                    && (holidays == null || !holidays.ContainsKey(next.ToString("yyyy-MM-dd"))))
                     return next + e.Open;
             }
 
@@ -390,10 +401,16 @@ namespace Tradewatch.ViewModels
             {
                 if (!File.Exists(_holidaysPath)) return;
                 var json = File.ReadAllText(_holidaysPath);
-                var raw = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json);
+                var raw = JsonSerializer.Deserialize<Dictionary<string, ExchangeCalendar>>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (raw == null) return;
-                foreach (var kv in raw)
-                    _holidays[kv.Key] = new HashSet<string>(kv.Value);
+                foreach (var (name, cal) in raw)
+                {
+                    _holidays[name] = cal.Holidays;
+                    _earlyCloses[name] = cal.EarlyCloses
+                        .Where(kv => TimeSpan.TryParse(kv.Value, out _))
+                        .ToDictionary(kv => kv.Key, kv => TimeSpan.Parse(kv.Value));
+                }
             }
             catch (Exception ex) { LogError($"Failed to load holidays from {_holidaysPath}", ex); }
         }

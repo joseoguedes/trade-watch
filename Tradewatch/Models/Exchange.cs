@@ -73,16 +73,51 @@ namespace Tradewatch
                     _status = value;
                     OnPropertyChanged(nameof(Status));
                     OnPropertyChanged(nameof(StatusText));
+                    OnPropertyChanged(nameof(StatusTooltip));
                 }
             }
         }
+
+        private string? _holidayName;
+        public string? HolidayName
+        {
+            get => _holidayName;
+            set
+            {
+                if (_holidayName == value) return;
+                _holidayName = value;
+                OnPropertyChanged(nameof(HolidayName));
+                OnPropertyChanged(nameof(StatusText));
+                OnPropertyChanged(nameof(StatusTooltip));
+            }
+        }
+
+        private string? _earlyCloseNote;
+        public string? EarlyCloseNote
+        {
+            get => _earlyCloseNote;
+            set
+            {
+                if (_earlyCloseNote == value) return;
+                _earlyCloseNote = value;
+                OnPropertyChanged(nameof(EarlyCloseNote));
+                OnPropertyChanged(nameof(IsEarlyClose));
+                OnPropertyChanged(nameof(StatusTooltip));
+            }
+        }
+        public bool IsEarlyClose => _earlyCloseNote != null;
 
         public string StatusText => Status switch
         {
             MarketStatus.PreMarket  => "Pre-Market",
             MarketStatus.AfterHours => "After-Hours",
+            MarketStatus.Holiday    => HolidayName ?? "Holiday",
             _ => Status.ToString()
         };
+
+        public string? StatusTooltip => Status == MarketStatus.Holiday
+            ? $"Holiday: {HolidayName ?? "market closed"}"
+            : EarlyCloseNote;
 
         private string _countdown = "";
         public string Countdown
