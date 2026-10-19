@@ -226,6 +226,8 @@
                       IsReadOnly="True"
                       HeadersVisibility="Column"
                       CanUserSortColumns="True"
+                      VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
                 <DataGrid.Columns>

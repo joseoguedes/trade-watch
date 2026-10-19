@@ -219,13 +219,13 @@ namespace Tradewatch.ViewModels
                 bool isHoliday = exchangeHolidays != null
                               && exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd"));
 
+                bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
-                bool inLunch = !isHoliday
+                bool inLunch = !isHoliday && !isWeekend
                             && e.LunchStart.HasValue && effectiveLunchEnd.HasValue
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < effectiveLunchEnd.Value;
-                bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
                 bool isOpen = !isHoliday
                             && localTime.TimeOfDay >= e.Open && localTime.TimeOfDay < e.Close
                             && !isWeekend
@@ -278,7 +278,10 @@ namespace Tradewatch.ViewModels
 
                 var effectiveLunchEnd = (localTime.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue)
                     ? e.FridayLunchEnd : e.LunchEnd;
-                bool inLunch = e.LunchStart.HasValue && effectiveLunchEnd.HasValue
+                bool isTradingDay = !e.WeekendDays.Contains(localTime.DayOfWeek)
+                                 && (exchangeHolidays == null || !exchangeHolidays.Contains(localTime.Date.ToString("yyyy-MM-dd")));
+                bool inLunch = isTradingDay
+                            && e.LunchStart.HasValue && effectiveLunchEnd.HasValue
                             && localTime.TimeOfDay >= e.LunchStart.Value
                             && localTime.TimeOfDay < effectiveLunchEnd.Value;
 
@@ -310,10 +313,12 @@ namespace Tradewatch.ViewModels
             var nowOpen = new List<string>();
             var nowClosed = new List<string>();
 
-            foreach (var ex in AllExchanges.Where(e => e.IsEnabled))
+            // Track every exchange (not just enabled ones) so re-enabling one doesn't
+            // compare against a stale status and fire a bogus notification.
+            foreach (var ex in AllExchanges)
             {
                 _lastKnownStatus.TryGetValue(ex.Name, out var previous);
-                if (previous == null || previous == ex.Status)
+                if (!ex.IsEnabled || previous == null || previous == ex.Status)
                 {
                     _lastKnownStatus[ex.Name] = ex.Status;
                     continue;

@@ -27,6 +27,14 @@
     <SolidColorBrush x:Key="GroupHeaderFgBrush" Color="#1A5A90" />
     <SolidColorBrush x:Key="GroupHeaderBorderBrush" Color="#BDD0E8" />
 
+    <!-- EXCHANGE GRID BRUSHES -->
+    <SolidColorBrush x:Key="GridRowEvenBrush" Color="White" />
+    <SolidColorBrush x:Key="GridRowOddBrush" Color="WhiteSmoke" />
+    <SolidColorBrush x:Key="GridSelectionBrush" Color="#7EB3D4" />
+    <SolidColorBrush x:Key="GridHeaderBgBrush" Color="#A8C4DC" />
+    <SolidColorBrush x:Key="GridHeaderFgBrush" Color="Black" />
+    <SolidColorBrush x:Key="GridLineBrush" Color="#8BAEC8" />
+
     <!-- LIGHT THEME SCROLLBAR BRUSHES -->
     <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#D8EAFA" />
     <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#7FB4D8" />
