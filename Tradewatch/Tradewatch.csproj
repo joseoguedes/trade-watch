@@ -6,12 +6,13 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <!-- Single-file publish: pack WPF's native DLLs into the exe too, so Tradewatch.exe runs on its own. -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="holidays.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <!-- Built into the exe so the single-file release can't lose it. -->
+    <EmbeddedResource Include="holidays.json" LogicalName="holidays.json" />
   </ItemGroup>
 
 </Project>

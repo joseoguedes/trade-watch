@@ -17,7 +17,6 @@ namespace Tradewatch.ViewModels
         private static readonly string _settingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "Tradewatch", "settings.json");
-        private readonly string _holidaysPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "holidays.json");
         private static readonly string _logPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Tradewatch", "error.log");
@@ -513,8 +512,13 @@ namespace Tradewatch.ViewModels
         {
             try
             {
-                if (!File.Exists(_holidaysPath)) return;
-                var json = File.ReadAllText(_holidaysPath);
+                using var stream = typeof(MainViewModel).Assembly.GetManifestResourceStream("holidays.json");
+                if (stream == null)
+                {
+                    LogError("holidays.json is missing from the build", new FileNotFoundException());
+                    return;
+                }
+                var json = new StreamReader(stream).ReadToEnd();
                 var raw = JsonSerializer.Deserialize<Dictionary<string, ExchangeCalendar>>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (raw == null) return;
@@ -526,7 +530,7 @@ namespace Tradewatch.ViewModels
                         .ToDictionary(kv => kv.Key, kv => TimeSpan.Parse(kv.Value));
                 }
             }
-            catch (Exception ex) { LogError($"Failed to load holidays from {_holidaysPath}", ex); }
+            catch (Exception ex) { LogError("Failed to load embedded holidays.json", ex); }
         }
 
         public AppSettings LoadSettings()
