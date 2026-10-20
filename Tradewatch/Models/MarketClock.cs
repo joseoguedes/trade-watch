@@ -13,7 +13,8 @@ namespace Tradewatch
         string? HolidayName,
         string? EarlyCloseNote,
         string Countdown,
-        TimeSpan UntilOpen);   // time until the regular session (re)opens; Zero while open
+        TimeSpan UntilOpen,    // time until the regular session (re)opens; Zero while open
+        bool InLunch);
 
     // The open/closed rules, kept free of UI state and the real clock so they can be unit-tested.
     public static class MarketClock
@@ -69,8 +70,14 @@ namespace Tradewatch
                 : null;
 
             return new MarketSnapshot(status, localTime, close, normalClose,
-                isHoliday ? holidayName : null, earlyCloseNote, countdown, untilOpen);
+                isHoliday ? holidayName : null, earlyCloseNote, countdown, untilOpen, inLunch);
         }
+
+        // An "opening soon" notice is due: the regular session starts within leadMinutes
+        // (reopening after a lunch break doesn't count).
+        public static bool HeadsUpDue(MarketSnapshot s, int leadMinutes)
+            => leadMinutes > 0 && s.Status != MarketStatus.Open && !s.InLunch
+            && s.UntilOpen > TimeSpan.Zero && s.UntilOpen <= TimeSpan.FromMinutes(leadMinutes);
 
         public static TimeSpan CloseOn(Exchange e, DayOfWeek day)
             => day == DayOfWeek.Friday && e.FridayClose.HasValue ? e.FridayClose.Value : e.Close;

@@ -25,7 +25,8 @@ namespace Tradewatch.ViewModels
         private readonly Dictionary<string, Dictionary<string, string>> _holidays = new();
         private readonly Dictionary<string, Dictionary<string, TimeSpan>> _earlyCloses = new();
         private readonly Dictionary<string, TimeZoneInfo> _tzCache = new();
-        private readonly Dictionary<string, TimeSpan> _untilOpen = new();
+        private readonly Dictionary<string, MarketSnapshot> _snapshots = new();
+        private readonly HashSet<string> _headsUpSent = new();   // "name|open time" already announced
         private AppSettings _settings;
 
         public ObservableCollection<Exchange> AllExchanges { get; }
@@ -140,6 +141,30 @@ namespace Tradewatch.ViewModels
             }
         }
 
+        public string NotifyMode
+        {
+            get => _settings.NotifyMode;
+            set
+            {
+                if (_settings.NotifyMode == value) return;
+                _settings.NotifyMode = value;
+                OnPropertyChanged();
+                SaveSettings(_settings);
+            }
+        }
+
+        public int HeadsUpMinutes
+        {
+            get => _settings.HeadsUpMinutes;
+            set
+            {
+                if (_settings.HeadsUpMinutes == value) return;
+                _settings.HeadsUpMinutes = value;
+                OnPropertyChanged();
+                SaveSettings(_settings);
+            }
+        }
+
         // Not in settings.json: the registry Run entry is the source of truth.
         public bool StartWithWindows
         {
@@ -165,6 +190,7 @@ namespace Tradewatch.ViewModels
         public event Action<bool>? ThemeChanged;
         public event Action<MarketStatus>? AnyOpenChanged;
         public event Action<IReadOnlyList<string>, IReadOnlyList<string>>? StatusChanged;
+        public event Action<IReadOnlyList<(string Name, int Minutes)>>? HeadsUp;
         public event Action? ExitRequested;
         public event Action? ManageExchangesRequested;
         public event Action? AboutRequested;
@@ -176,6 +202,8 @@ namespace Tradewatch.ViewModels
         public ICommand ManageExchangesCommand { get; }
         public ICommand TogglePinCommand { get; }
         public ICommand ToggleCompactModeCommand { get; }
+        public ICommand SetNotifyModeCommand { get; }
+        public ICommand SetHeadsUpCommand { get; }
 
         public MainViewModel()
         {
@@ -216,6 +244,8 @@ namespace Tradewatch.ViewModels
                 SaveSettings(_settings);
             });
             ToggleCompactModeCommand = new RelayCommand(() => IsCompactMode = !IsCompactMode);
+            SetNotifyModeCommand = new RelayCommand<string>(mode => NotifyMode = mode);
+            SetHeadsUpCommand = new RelayCommand<string>(minutes => HeadsUpMinutes = int.Parse(minutes));
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (s, e) => Tick();
@@ -263,7 +293,7 @@ namespace Tradewatch.ViewModels
                 e.EarlyCloseNote = snap.EarlyCloseNote;
                 e.Status = snap.Status;
                 e.Countdown = snap.Countdown;
-                _untilOpen[e.Name] = snap.UntilOpen;
+                _snapshots[e.Name] = snap;
             }
 
             MarketStatus marketState;
@@ -281,6 +311,7 @@ namespace Tradewatch.ViewModels
             MarketsOpenSummary = $"{enabled.Count(e => e.Status == MarketStatus.Open)} of {enabled.Count} markets open";
 
             NotifyStatusChanges();
+            NotifyHeadsUps(nowUtc);
         }
 
         private void UpdateNextToOpen()
@@ -290,7 +321,8 @@ namespace Tradewatch.ViewModels
 
             foreach (var e in AllExchanges.Where(ex => ex.IsEnabled && ex.Status != MarketStatus.Open))
             {
-                if (!_untilOpen.TryGetValue(e.Name, out var span)) continue;
+                if (!_snapshots.TryGetValue(e.Name, out var snap)) continue;
+                var span = snap.UntilOpen;
                 if (span >= TimeSpan.Zero && span < bestSpan)
                 {
                     bestSpan = span;
@@ -327,6 +359,12 @@ namespace Tradewatch.ViewModels
                     continue;
                 }
 
+                if (!ShouldNotify(ex))
+                {
+                    _lastKnownStatus[ex.Name] = ex.Status;
+                    continue;
+                }
+
                 bool wasOpen = previous == MarketStatus.Open;
                 bool isNowOpen = ex.Status == MarketStatus.Open;
                 if (!wasOpen && isNowOpen) nowOpen.Add(ex.Name);
@@ -337,6 +375,27 @@ namespace Tradewatch.ViewModels
 
             if (nowOpen.Count > 0 || nowClosed.Count > 0)
                 StatusChanged?.Invoke(nowOpen, nowClosed);
+        }
+
+        private bool ShouldNotify(Exchange ex)
+            => ex.IsEnabled && NotifyMode != "Off" && (NotifyMode == "All" || ex.IsPinned);
+
+        // "Opening soon" notice, once per opening, HeadsUpMinutes before a regular session starts
+        // (not when reopening after a lunch break).
+        private void NotifyHeadsUps(DateTime nowUtc)
+        {
+            if (HeadsUpMinutes <= 0) return;
+            var soon = new List<(string Name, int Minutes)>();
+
+            foreach (var ex in AllExchanges.Where(ShouldNotify))
+            {
+                if (!_snapshots.TryGetValue(ex.Name, out var snap) || !MarketClock.HeadsUpDue(snap, HeadsUpMinutes)) continue;
+                if (_headsUpSent.Add($"{ex.Name}|{nowUtc + snap.UntilOpen:yyyy-MM-dd HH:mm}"))
+                    soon.Add((ex.Name, (int)Math.Ceiling(snap.UntilOpen.TotalMinutes)));
+            }
+
+            if (soon.Count > 0)
+                HeadsUp?.Invoke(soon);
         }
 
         // ── Timeline column: each exchange's sessions mapped onto the viewer's local day ──

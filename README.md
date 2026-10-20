@@ -12,7 +12,7 @@ A small Windows desktop app that shows, at a glance, which of the world's stock 
 - **"Next to open"** bar: double-click the name to jump to that exchange.
 - **Optional timeline column** showing each exchange's trading day in your own time zone.
 - **Star / pin** exchanges, **group by region**, and a **compact mode** that only shows your pinned ones.
-- **Tray icon** that turns green when any of your exchanges is open, plus notifications when one opens or closes.
+- **Tray icon** that turns green when any of your exchanges is open, plus notifications when one opens or closes (all exchanges, starred only, or off) and an optional heads-up 5, 15 or 30 minutes before an open.
 - Dark and light themes, always-on-top, and **Start with Windows** (starts quietly in the tray).
 
 ## Download

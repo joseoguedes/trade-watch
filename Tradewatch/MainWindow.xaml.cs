@@ -76,6 +76,7 @@ namespace Tradewatch
             _vm.ThemeChanged += ApplyTheme;
             _vm.AnyOpenChanged += UpdateTrayIcon;
             _vm.StatusChanged += ShowStatusBalloon;
+            _vm.HeadsUp += ShowHeadsUpBalloon;
             _vm.ExitRequested += ExitApp;
             _vm.ManageExchangesRequested += OpenExchangeSelector;
             _vm.AboutRequested += ShowAbout;
@@ -139,6 +140,7 @@ namespace Tradewatch
             _vm.ThemeChanged -= ApplyTheme;
             _vm.AnyOpenChanged -= UpdateTrayIcon;
             _vm.StatusChanged -= ShowStatusBalloon;
+            _vm.HeadsUp -= ShowHeadsUpBalloon;
             _vm.ExitRequested -= ExitApp;
             _vm.ManageExchangesRequested -= OpenExchangeSelector;
             _vm.AboutRequested -= ShowAbout;
@@ -178,6 +180,12 @@ namespace Tradewatch
             if (opened.Count > 0) parts.Add($"{string.Join(", ", opened)} now Open");
             if (closed.Count > 0) parts.Add($"{string.Join(", ", closed)} now Closed");
             _trayIcon.ShowBalloonTip(4000, "Tradewatch", string.Join(" | ", parts), WinForms.ToolTipIcon.Info);
+        }
+
+        private void ShowHeadsUpBalloon(IReadOnlyList<(string Name, int Minutes)> soon)
+        {
+            var text = "Opening soon: " + string.Join(", ", soon.Select(x => $"{x.Name} in {x.Minutes} min"));
+            _trayIcon.ShowBalloonTip(4000, "Tradewatch", text, WinForms.ToolTipIcon.Info);
         }
 
         private void OpenExchangeSelector()

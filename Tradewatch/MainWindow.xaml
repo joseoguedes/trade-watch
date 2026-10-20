@@ -75,13 +75,24 @@
                                             CornerRadius="2"
                                             Padding="6,4,13,4"
                                             Grid.ColumnSpan="2">
-                                        <ContentPresenter
-                                            Grid.Column="0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            Margin="4,0"
-                                            RecognizesAccessKey="True"
-                                            ContentSource="Header"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <!-- Always takes its space so ticked and unticked items line up -->
+                                            <Path x:Name="CheckMark"
+                                                  Width="10" Height="8"
+                                                  Margin="0,0,2,0"
+                                                  VerticalAlignment="Center"
+                                                  Stretch="Fill"
+                                                  Stroke="{TemplateBinding Foreground}"
+                                                  StrokeThickness="1.6"
+                                                  Data="M 0 4 L 3.5 7.5 L 10 0"
+                                                  Visibility="Hidden"/>
+                                            <ContentPresenter
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                Margin="4,0"
+                                                RecognizesAccessKey="True"
+                                                ContentSource="Header"/>
+                                        </StackPanel>
                                     </Border>
 
                                     <Path x:Name="Arrow"
@@ -116,6 +127,9 @@
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="HasItems" Value="True">
                                         <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                                    </Trigger>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                                     </Trigger>
                                     <Trigger Property="IsHighlighted" Value="True">
                                         <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SubMenuHoverBgBrush}"/>
@@ -184,6 +198,24 @@
                     <MenuItem Header="Start with Windows"
                               IsCheckable="True"
                               IsChecked="{Binding StartWithWindows, Mode=TwoWay}"/>
+                    <MenuItem Header="Notifications" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                        <MenuItem Header="All shown exchanges" Command="{Binding SetNotifyModeCommand}" CommandParameter="All"
+                                  IsChecked="{Binding NotifyMode, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=All}"/>
+                        <MenuItem Header="Starred only" Command="{Binding SetNotifyModeCommand}" CommandParameter="Starred"
+                                  IsChecked="{Binding NotifyMode, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=Starred}"/>
+                        <MenuItem Header="Off" Command="{Binding SetNotifyModeCommand}" CommandParameter="Off"
+                                  IsChecked="{Binding NotifyMode, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=Off}"/>
+                    </MenuItem>
+                    <MenuItem Header="Heads-up Before Open" ItemContainerStyle="{StaticResource SubMenuItemStyle}">
+                        <MenuItem Header="Off" Command="{Binding SetHeadsUpCommand}" CommandParameter="0"
+                                  IsChecked="{Binding HeadsUpMinutes, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=0}"/>
+                        <MenuItem Header="5 minutes" Command="{Binding SetHeadsUpCommand}" CommandParameter="5"
+                                  IsChecked="{Binding HeadsUpMinutes, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=5}"/>
+                        <MenuItem Header="15 minutes" Command="{Binding SetHeadsUpCommand}" CommandParameter="15"
+                                  IsChecked="{Binding HeadsUpMinutes, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=15}"/>
+                        <MenuItem Header="30 minutes" Command="{Binding SetHeadsUpCommand}" CommandParameter="30"
+                                  IsChecked="{Binding HeadsUpMinutes, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=30}"/>
+                    </MenuItem>
                 </MenuItem>
             </Menu>
 

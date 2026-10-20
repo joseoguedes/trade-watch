@@ -175,6 +175,23 @@ public class MarketClockTests
         Assert.Equal("Opens in 66h 30m", At("Tadawul", "2026-10-22 15:30").Countdown);
     }
 
+    // ── "Opening soon" heads-up ──
+
+    [Theory]
+    [InlineData("NYSE", "2026-10-20 09:15", 15, true)]      // exactly 15 min before
+    [InlineData("NYSE", "2026-10-20 09:25", 15, true)]
+    [InlineData("NYSE", "2026-10-20 09:14", 15, false)]     // too early
+    [InlineData("NYSE", "2026-10-20 09:25", 0, false)]      // heads-up switched off
+    [InlineData("NYSE", "2026-10-20 10:00", 15, false)]     // already open
+    [InlineData("NYSE", "2026-11-26 09:25", 15, false)]     // Thanksgiving: not opening today
+    [InlineData("NYSE", "2026-11-25 20:30", 30, false)]     // evening before Thanksgiving
+    [InlineData("Shanghai", "2026-10-20 09:20", 15, true)]  // morning open
+    [InlineData("Shanghai", "2026-10-20 12:50", 15, false)] // reopening after lunch doesn't count
+    public void Heads_up_before_open(string exchange, string local, int lead, bool due)
+    {
+        Assert.Equal(due, MarketClock.HeadsUpDue(At(exchange, local), lead));
+    }
+
     // ── Countdown text ──
 
     [Theory]
