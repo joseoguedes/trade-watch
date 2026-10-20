@@ -27,6 +27,11 @@
     <SolidColorBrush x:Key="GroupHeaderFgBrush" Color="#0aff9d" />
     <SolidColorBrush x:Key="GroupHeaderBorderBrush" Color="#1A4A44" />
 
+    <!-- TIMELINE COLUMN BRUSHES -->
+    <SolidColorBrush x:Key="TimelineTrackBrush" Color="#1E1E1E" />
+    <SolidColorBrush x:Key="TimelineTickBrush" Color="#3A3A3A" />
+    <SolidColorBrush x:Key="TimelineNowBrush" Color="White" />
+
     <!-- EXCHANGE GRID BRUSHES -->
     <SolidColorBrush x:Key="GridRowEvenBrush" Color="Black" />
     <SolidColorBrush x:Key="GridRowOddBrush" Color="#191919" />

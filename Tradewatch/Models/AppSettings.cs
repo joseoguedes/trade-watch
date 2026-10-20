@@ -9,6 +9,7 @@ namespace Tradewatch
         public bool AlwaysOnTop { get; set; } = false;
         public bool GroupByRegion { get; set; } = true;
         public bool IsCompactMode { get; set; } = false;
+        public bool ShowTimeline { get; set; } = false;
         public List<string> PinnedExchanges { get; set; } = new List<string>();
         public double WindowLeft { get; set; } = -1;
         public double WindowTop { get; set; } = -1;

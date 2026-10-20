@@ -107,6 +107,20 @@ namespace Tradewatch
         }
         public bool IsEarlyClose => _earlyCloseNote != null;
 
+        private IReadOnlyList<Controls.TimelineSegment>? _timeline;
+        public IReadOnlyList<Controls.TimelineSegment>? Timeline
+        {
+            get => _timeline;
+            set { _timeline = value; OnPropertyChanged(nameof(Timeline)); }
+        }
+
+        private string _timelineTooltip = "";
+        public string TimelineTooltip
+        {
+            get => _timelineTooltip;
+            set { if (_timelineTooltip != value) { _timelineTooltip = value; OnPropertyChanged(nameof(TimelineTooltip)); } }
+        }
+
         public string StatusText => Status switch
         {
             MarketStatus.PreMarket  => "Pre-Market",

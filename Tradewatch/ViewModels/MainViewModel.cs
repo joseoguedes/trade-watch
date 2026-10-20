@@ -74,6 +74,9 @@ namespace Tradewatch.ViewModels
             private set { _nextToOpenName = value; OnPropertyChanged(); }
         }
 
+        // The exchange behind NextToOpenName (null when everything is open).
+        public Exchange? NextToOpenExchange { get; private set; }
+
         private string _nextToOpenCountdown = "";
         public string NextToOpenCountdown
         {
@@ -123,6 +126,29 @@ namespace Tradewatch.ViewModels
             }
         }
 
+        private bool _showTimeline;
+        public bool ShowTimeline
+        {
+            get => _showTimeline;
+            set
+            {
+                if (_showTimeline == value) return;
+                _showTimeline = value;
+                OnPropertyChanged();
+                _settings.ShowTimeline = _showTimeline;
+                SaveSettings(_settings);
+            }
+        }
+
+        // Position of "now" within the viewer's local day (0..1), for the timeline column.
+        private double _nowFraction = -1;
+        public double NowFraction
+        {
+            get => _nowFraction;
+            private set { _nowFraction = value; OnPropertyChanged(); }
+        }
+        private DateTime _timelineDay;
+
         // Events for code-behind to handle UI-only concerns
         public event Action<bool>? ThemeChanged;
         public event Action<MarketStatus>? AnyOpenChanged;
@@ -159,6 +185,7 @@ namespace Tradewatch.ViewModels
             _alwaysOnTop = _settings.AlwaysOnTop;
             _groupByRegion = _settings.GroupByRegion;
             _isCompactMode = _settings.IsCompactMode;
+            _showTimeline = _settings.ShowTimeline;
 
             foreach (var ex in AllExchanges)
                 ex.IsPinned = _settings.PinnedExchanges.Contains(ex.Name);
@@ -222,9 +249,7 @@ namespace Tradewatch.ViewModels
                 bool isHoliday = exchangeHolidays != null && exchangeHolidays.TryGetValue(dateKey, out holidayName);
 
                 bool isWeekend = e.WeekendDays.Contains(localTime.DayOfWeek);
-                var normalClose = CloseOn(e, localTime.DayOfWeek);
-                TimeSpan? earlyClose = _earlyCloses.TryGetValue(e.Name, out var early)
-                                    && early.TryGetValue(dateKey, out var ec) && ec < normalClose ? ec : null;
+                var earlyClose = EarlyCloseOn(e, localTime.Date, out var normalClose);
                 var close = earlyClose ?? normalClose;
                 // On early-close days after-hours trading starts at the early close (e.g. NYSE 13:00).
                 var afterHoursOpen = earlyClose.HasValue && e.AfterHoursOpen.HasValue ? earlyClose : e.AfterHoursOpen;
@@ -270,6 +295,7 @@ namespace Tradewatch.ViewModels
                 marketState = MarketStatus.Closed;
             AnyOpenChanged?.Invoke(marketState);
             UpdateNextToOpen(nowUtc);
+            UpdateTimelines();
 
             var enabled = AllExchanges.Where(e => e.IsEnabled).ToList();
             MarketsOpenSummary = $"{enabled.Count(e => e.Status == MarketStatus.Open)} of {enabled.Count} markets open";
@@ -308,6 +334,7 @@ namespace Tradewatch.ViewModels
                 }
             }
 
+            NextToOpenExchange = best;
             if (best != null)
             {
                 NextToOpenName = best.Name;
@@ -364,6 +391,93 @@ namespace Tradewatch.ViewModels
 
         private static TimeSpan CloseOn(Exchange e, DayOfWeek day)
             => day == DayOfWeek.Friday && e.FridayClose.HasValue ? e.FridayClose.Value : e.Close;
+
+        // The early close for that exchange-local date, if earlier than the normal close.
+        private TimeSpan? EarlyCloseOn(Exchange e, DateTime localDate, out TimeSpan normalClose)
+        {
+            normalClose = CloseOn(e, localDate.DayOfWeek);
+            return _earlyCloses.TryGetValue(e.Name, out var early)
+                && early.TryGetValue(localDate.ToString("yyyy-MM-dd"), out var ec) && ec < normalClose
+                ? ec : null;
+        }
+
+        // ── Timeline column: each exchange's sessions mapped onto the viewer's local day ──
+
+        private void UpdateTimelines()
+        {
+            var today = DateTime.Today;
+            var dayStartUtc = today.ToUniversalTime();
+            var dayEndUtc = today.AddDays(1).ToUniversalTime();
+
+            if (today != _timelineDay)
+            {
+                _timelineDay = today;
+                foreach (var e in AllExchanges)
+                    if (_tzCache.TryGetValue(e.TimeZone, out var tz))
+                        BuildTimeline(e, tz, dayStartUtc, dayEndUtc);
+            }
+
+            var now = (DateTime.UtcNow - dayStartUtc).TotalMinutes / (dayEndUtc - dayStartUtc).TotalMinutes;
+            if (Math.Abs(now - NowFraction) >= 1.0 / 1440)  // redraw at most once a minute
+                NowFraction = now;
+        }
+
+        private void BuildTimeline(Exchange e, TimeZoneInfo tz, DateTime dayStartUtc, DateTime dayEndUtc)
+        {
+            var segments = new List<Controls.TimelineSegment>();
+            var sessions = new List<string>();
+            double total = (dayEndUtc - dayStartUtc).TotalMinutes;
+            _holidays.TryGetValue(e.Name, out var holidays);
+
+            // The viewer's day can overlap up to three exchange-local dates.
+            var last = TimeZoneInfo.ConvertTimeFromUtc(dayEndUtc, tz).Date;
+            for (var d = TimeZoneInfo.ConvertTimeFromUtc(dayStartUtc, tz).Date.AddDays(-1); d <= last; d = d.AddDays(1))
+            {
+                if (e.WeekendDays.Contains(d.DayOfWeek)) continue;
+                if (holidays != null && holidays.ContainsKey(d.ToString("yyyy-MM-dd"))) continue;
+
+                var earlyClose = EarlyCloseOn(e, d, out var normalClose);
+                var close = earlyClose ?? normalClose;
+                var lunchEnd = d.DayOfWeek == DayOfWeek.Friday && e.FridayLunchEnd.HasValue ? e.FridayLunchEnd : e.LunchEnd;
+
+                void Add(TimeSpan from, TimeSpan to, bool extended)
+                {
+                    if (to <= from) return;
+                    var a = ToUtc(d + from, tz);
+                    var b = ToUtc(d + to, tz);
+                    double s = Math.Max(0, (a - dayStartUtc).TotalMinutes / total);
+                    double en = Math.Min(1, (b - dayStartUtc).TotalMinutes / total);
+                    if (en <= s) return;
+                    segments.Add(new Controls.TimelineSegment(s, en, extended));
+                    if (!extended)
+                        sessions.Add($"{a.ToLocalTime():HH:mm}–{b.ToLocalTime():HH:mm}");
+                }
+
+                if (e.PreMarketOpen.HasValue && e.PreMarketClose.HasValue)
+                    Add(e.PreMarketOpen.Value, e.PreMarketClose.Value, true);
+                if (e.LunchStart.HasValue && lunchEnd.HasValue && e.LunchStart.Value < close)
+                {
+                    Add(e.Open, e.LunchStart.Value, false);
+                    Add(lunchEnd.Value, close, false);
+                }
+                else
+                    Add(e.Open, close, false);
+                if (e.AfterHoursOpen.HasValue && e.AfterHoursClose.HasValue)
+                    Add(earlyClose ?? e.AfterHoursOpen.Value, e.AfterHoursClose.Value, true);
+            }
+
+            e.Timeline = segments;
+            e.TimelineTooltip = sessions.Count > 0
+                ? "Trading today (your time): " + string.Join(", ", sessions)
+                : "No trading during your day";
+        }
+
+        private static DateTime ToUtc(DateTime local, TimeZoneInfo tz)
+        {
+            local = DateTime.SpecifyKind(local, DateTimeKind.Unspecified);
+            if (tz.IsInvalidTime(local)) local = local.AddHours(1);  // skipped by a DST jump
+            return TimeZoneInfo.ConvertTimeToUtc(local, tz);
+        }
 
         private static DateTime GetNextOpen(Exchange e, DateTime localTime, Dictionary<string, string>? holidays = null)
         {

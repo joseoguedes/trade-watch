@@ -1,6 +1,7 @@
 <Window x:Class="Tradewatch.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Tradewatch.Controls"
         Title="Tradewatch" Height="500" Width="700" Background="#111111"
         Topmost="{Binding AlwaysOnTop}">
 
@@ -177,6 +178,9 @@
                     <MenuItem Header="Compact Mode"
                               IsCheckable="True"
                               IsChecked="{Binding IsCompactMode, Mode=TwoWay}"/>
+                    <MenuItem Header="Show Timeline"
+                              IsCheckable="True"
+                              IsChecked="{Binding ShowTimeline, Mode=TwoWay}"/>
                 </MenuItem>
             </Menu>
 
@@ -206,7 +210,10 @@
                     <TextBlock Text="{Binding NextToOpenName}"
                                Foreground="{DynamicResource NextToOpenBarNameBrush}"
                                FontSize="13"
-                               FontWeight="SemiBold"/>
+                               FontWeight="SemiBold"
+                               Cursor="Hand"
+                               ToolTip="Double-click to find it in the list"
+                               MouseLeftButtonDown="NextToOpenName_MouseLeftButtonDown"/>
                     <TextBlock Text="{Binding NextToOpenCountdown, StringFormat=' — {0}'}"
                                Foreground="{DynamicResource NextToOpenBarCountdownBrush}"
                                FontSize="13"
@@ -296,6 +303,33 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    <DataGridTemplateColumn x:Name="TimelineColumn" Width="220" CanUserSort="False" CanUserResize="False" Visibility="Collapsed">
+                        <DataGridTemplateColumn.Header>
+                            <StackPanel Width="200" ToolTip="Each exchange's trading hours today, in your local time. Lighter = pre-market / after-hours; the line is now.">
+                                <TextBlock Text="Today (your time)" HorizontalAlignment="Center"/>
+                                <Grid Margin="0,1,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="00" FontSize="10" FontWeight="Normal" Opacity="0.7"/>
+                                    <TextBlock Grid.Column="1" Text="06" FontSize="10" FontWeight="Normal" Opacity="0.7" Margin="-2,0,0,0"/>
+                                    <TextBlock Grid.Column="2" Text="12" FontSize="10" FontWeight="Normal" Opacity="0.7" Margin="-2,0,0,0"/>
+                                    <TextBlock Grid.Column="3" Text="18" FontSize="10" FontWeight="Normal" Opacity="0.7" Margin="-2,0,0,0"/>
+                                </Grid>
+                            </StackPanel>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <controls:TimelineBar Margin="10,0"
+                                                      Segments="{Binding Timeline}"
+                                                      NowFraction="{Binding DataContext.NowFraction, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                      TrackBrush="{DynamicResource TimelineTrackBrush}"
+                                                      TickBrush="{DynamicResource TimelineTickBrush}"
+                                                      NowBrush="{DynamicResource TimelineNowBrush}"
+                                                      ToolTip="{Binding TimelineTooltip}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
 
                 <DataGrid.GroupStyle>

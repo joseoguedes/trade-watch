@@ -53,7 +53,10 @@ namespace Tradewatch
                     SetupCompactView();
                 if (e.PropertyName == nameof(MainViewModel.IsCompactMode))
                     SwitchMode();
+                if (e.PropertyName == nameof(MainViewModel.ShowTimeline))
+                    ApplyTimelineVisibility(resizeWindow: true);
             };
+            ApplyTimelineVisibility(resizeWindow: false);
 
             if (_vm.IsCompactMode)
                 Loaded += (s, e) => SwitchMode();
@@ -353,6 +356,44 @@ namespace Tradewatch
                 SetCurrentValue(TopmostProperty, _vm.AlwaysOnTop);
                 ResizeMode = ResizeMode.CanResize;
             }
+        }
+
+        private void NextToOpenName_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2 && _vm.NextToOpenExchange is Exchange ex)
+                RevealExchange(ex);
+        }
+
+        // Scroll the main list to an exchange and select it, expanding its region
+        // group first if the user had collapsed it.
+        private void RevealExchange(Exchange ex)
+        {
+            if (!_vm.DisplayedExchanges.Contains(ex)) return;
+
+            ExchangeGrid.ScrollIntoView(ex);
+            ExchangeGrid.UpdateLayout();
+            var group = FindVisualDescendants<GroupItem>(ExchangeGrid)
+                .FirstOrDefault(g => g.DataContext is CollectionViewGroup cvg && cvg.Items.Contains(ex));
+            if (group != null
+                && FindVisualDescendants<ToggleButton>(group).FirstOrDefault(t => t.Name == "Toggle") is ToggleButton toggle
+                && toggle.IsChecked == false)
+            {
+                toggle.IsChecked = true;
+                ExchangeGrid.UpdateLayout();
+            }
+
+            ExchangeGrid.SelectedItem = ex;
+            ExchangeGrid.ScrollIntoView(ex);
+            ExchangeGrid.Focus();
+        }
+
+        private void ApplyTimelineVisibility(bool resizeWindow)
+        {
+            TimelineColumn.Visibility = _vm.ShowTimeline ? Visibility.Visible : Visibility.Collapsed;
+            if (!resizeWindow || _vm.IsCompactMode) return;
+            // Make room for the extra column rather than squeezing the exchange names.
+            if (_vm.ShowTimeline) Width += TimelineColumn.Width.Value;
+            else Width = Math.Max(MinWidth, Width - TimelineColumn.Width.Value);
         }
 
         private void ApplyGrouping()
