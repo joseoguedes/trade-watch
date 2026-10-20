@@ -29,6 +29,10 @@ Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) on W
 
     dotnet run --project Tradewatch
 
+Tests (open/closed logic against the real exchange and holiday data):
+
+    dotnet test Tradewatch.Tests
+
 Single-file exe (the same as the release):
 
     dotnet publish Tradewatch/Tradewatch.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
