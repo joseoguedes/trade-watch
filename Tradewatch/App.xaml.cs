@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 
 namespace Tradewatch;
 
@@ -21,6 +22,12 @@ public partial class App : Application
         System.Windows.Forms.Application.EnableVisualStyles();
         System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
         base.OnStartup(e);
+
+        // Launched at login (Start with Windows) → stay in the tray until the user opens it.
+        var window = new MainWindow();
+        MainWindow = window;
+        if (!e.Args.Contains(StartupRegistration.TrayArg))
+            window.Show();
     }
 }
 

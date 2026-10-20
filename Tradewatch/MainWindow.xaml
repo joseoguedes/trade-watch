@@ -181,6 +181,9 @@
                     <MenuItem Header="Show Timeline"
                               IsCheckable="True"
                               IsChecked="{Binding ShowTimeline, Mode=TwoWay}"/>
+                    <MenuItem Header="Start with Windows"
+                              IsCheckable="True"
+                              IsChecked="{Binding StartWithWindows, Mode=TwoWay}"/>
                 </MenuItem>
             </Menu>
 

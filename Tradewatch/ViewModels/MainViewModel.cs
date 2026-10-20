@@ -139,6 +139,18 @@ namespace Tradewatch.ViewModels
             }
         }
 
+        // Not in settings.json: the registry Run entry is the source of truth.
+        public bool StartWithWindows
+        {
+            get => StartupRegistration.IsEnabled;
+            set
+            {
+                try { StartupRegistration.Set(value); }
+                catch (Exception ex) { LogError("Failed to change Start with Windows", ex); }
+                OnPropertyChanged();
+            }
+        }
+
         // Position of "now" within the viewer's local day (0..1), for the timeline column.
         private double _nowFraction = -1;
         public double NowFraction
