@@ -17,9 +17,12 @@ A small Windows desktop app that shows, at a glance, which of the world's stock 
 
 ## Download
 
-Grab `Tradewatch.exe` from the [latest release](https://github.com/joseoguedes/trade-watch/releases/latest). It is a single file: no installer and nothing else to install. Put it somewhere permanent (for example `C:\Users\<you>\Apps\Tradewatch\`) and run it.
+From the [latest release](https://github.com/joseoguedes/trade-watch/releases/latest), pick one:
 
-The exe isn't code-signed, so the first time you run it Windows SmartScreen may say "Windows protected your PC". Click **More info → Run anyway**.
+- **`TradewatchSetup.exe`** (recommended): installs Tradewatch for your user (no admin rights needed) with a Start menu entry, an optional desktop shortcut and Start with Windows, and an uninstaller in Windows' *Apps & features*. Run a newer one later to upgrade.
+- **`Tradewatch.exe`**: the portable version, a single file with nothing to install. Put it somewhere permanent (for example `C:\Users\<you>\Apps\Tradewatch\`) and run it.
+
+Neither is code-signed, so the first time you run one Windows SmartScreen may say "Windows protected your PC". Click **More info → Run anyway**.
 
 Settings are saved in `%APPDATA%\Tradewatch\settings.json`.
 
@@ -44,7 +47,7 @@ Bump `<Version>` in `Tradewatch/Tradewatch.csproj`, commit, then tag and push:
     git tag v1.0.0
     git push origin v1.0.0
 
-The Release workflow builds `Tradewatch.exe` and publishes it on the Releases page.
+The Release workflow runs the tests, builds `Tradewatch.exe` and the `TradewatchSetup.exe` installer (Inno Setup script in `installer/Tradewatch.iss`), and publishes both on the Releases page.
 
 ## Updating holiday data
 
