@@ -200,8 +200,9 @@ namespace Tradewatch
 
         private void ShowAbout()
         {
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             MessageBox.Show(
-                "Tradewatch\n\nA simple app to track global market open hours.\nCreated by Jose.",
+                $"Tradewatch {version?.ToString(3)}\n\nA simple app to track global market open hours.\nCreated by Jose.",
                 "About Tradewatch",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information
