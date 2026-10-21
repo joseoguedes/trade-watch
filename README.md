@@ -52,3 +52,20 @@ The Release workflow runs the tests, builds `Tradewatch.exe` and the `Tradewatch
 ## Updating holiday data
 
 See [tools/README.md](tools/README.md). India and China 2027 dates are estimates until the official schedules come out (around December 2026).
+
+## Privacy
+
+Tradewatch makes no network connections. Exchange hours and holidays are built into the app, and nothing about you or your use of it is collected or sent anywhere. Your settings stay on your PC in `%APPDATA%\Tradewatch\settings.json`.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+- Committers and reviewers: [joseoguedes](https://github.com/joseoguedes)
+- Approvers: [joseoguedes](https://github.com/joseoguedes)
+
+Only release builds made by this repository's GitHub Actions release workflow from tagged commits are signed, and each signing request is approved by hand.
+
+## License
+
+[MIT](LICENSE)
